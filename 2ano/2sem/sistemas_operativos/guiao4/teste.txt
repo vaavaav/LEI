@@ -1,0 +1,16 @@
+teste
+te.txt
+evo por cima makes sense
+52 abr  1 19:24 a.out
+-rw-r--r-- 1 pedro pedro 52778 abr  1 18:17 dups.pdf
+-rw-r--r-- 1 pedro pedro   441 abr  1 19:24 erros.txt
+-rwxr-xr-x 1 pedro pedro 16920 abr  1 18:38 ex1
+-rw-r--r-- 1 pedro pedro   706 abr  1 19:29 ex1.c
+-rw-r--r-- 1 pedro pedro  1124 abr  1 19:24 ex2_1.c
+-rw-r--r-- 1 pedro pedro   587 abr  1 19:31 ex2_3
+-rw-r--r-- 1 pedro pedro   709 abr  2 13:52 ex2_3.c
+-rwxr-xr-x 1 pedro pedro 17256 abr 15 18:31 ex4
+-rw-r--r-- 1 pedro pedro  1530 abr 15 18:31 ex4.c
+-rw-r--r-- 1 pedro pedro 48883 abr  1 18:26 guiao-04 - 2020.pdf
+-rw-r--r-- 1 pedro pedro   474 abr  1 19:24 saida.txt
+-rwxr-xr-x 1 pedro pedro   689 abr 15 18:35 teste.txt
