@@ -1,0 +1,775 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	
+%	Clusters particionais com dados numéricos
+% 	The Elbow Method
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[12pt, a4paper, oneside]{scrreport}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage[portuguese]{babel} 
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{multicol}
+\usepackage{setspace}
+\usepackage[hyphens]{url}
+\usepackage{utopia}
+\usepackage{hyperref}
+\usepackage[dvipsnames]{xcolor}
+%\usepackage{fancyhdr}
+\usepackage{libertine}
+\usepackage{blindtext}
+\usepackage[plainfootsepline]{scrlayer-scrpage}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{animate}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+%-----------SETTINGS OF LISTINGS-----------------------
+\lstset{ 
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
+  basicstyle=\scriptsize,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{gray},    % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  firstnumber=1,                % start line enumeration with line 1
+  frame=single,	                   % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=C,                 % the language of the code
+  morekeywords={*,...},            % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{gray}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{purple},     % string literal style
+  tabsize=2,	                   % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+
+
+
+
+
+\lstset{literate=
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+  {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+  {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+  {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+  {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+  {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+  {Ã}{{\~A}}1 {ã}{{\~a}}1 {Õ}{{\~O}}1 {õ}{{\~o}}1
+  {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+  {ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1
+  {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+  {€}{{\euro}}1 {£}{{\pounds}}1 {«}{{\guillemotleft}}1
+  {»}{{\guillemotright}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1
+}
+
+
+%-------------------------------------------------------------------------------
+%	SPECIFIC CONFIGURATIONS 
+%---------------------------------------------------------------------
+ 
+%Algpseucode
+
+\renewcommand{\algorithmicrepeat}{\textbf{repita}}
+ \renewcommand{\algorithmicuntil}{\textbf{at\'{e}}}
+ \renewcommand{\algorithmicfor}{\textbf{para}}
+  \renewcommand{\algorithmicdo}{\textbf{faz}}
+ \renewcommand{\algorithmicend}{\textbf{fim}}
+% \renewcommand{\algorithmicendfor}{\algorithmicend\ \algorithmicfor}
+ \renewcommand{\algorithmicprocedure}{\textbf{procedimento}}
+
+%MULTICOL
+
+\setlength{\columnsep}{1cm}
+
+%INCLUDEGRAPHICS
+
+\graphicspath{{Figures/}} %Pasta de input de imagens, gráficos, ...
+
+%HYPERREF
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	urlcolor=black,
+    urlbordercolor=black,
+    linkbordercolor=white,
+    pdfborderstyle={/S/U/W 1},
+    pdftitle={The Elbow Method},
+    pdfpagemode=FullScreen
+}
+
+\makeatletter
+\Hy@AtBeginDocument{%
+  \def\@pdfborder{0 0 1}% Overrides border definition set with colorlinks=true
+  \def\@pdfborderstyle{/S/U/W 1}% Overrides border style set with colorlinks=true
+                                % Hyperlink border style will be underline of width 1pt
+}
+\makeatother
+
+%CAPTIONS
+
+\DeclareCaptionType{myequation}[][Lista de Equações]
+\captionsetup[myequation]{labelformat=empty}
+
+
+%-------------------------------------------------------------------------------
+%	Colors
+%-------------------------------------------------------------------------------
+
+\definecolor{uminho}{RGB}{125,58,64}
+
+
+%-------------------------------------------------------------------------------
+%	Chapter Style
+%-------------------------------------------------------------------------------
+\RedeclareSectionCommand[
+  beforeskip=1sp minus 1sp,
+  font=\Huge\fontfamily{put}\color{white}
+]{chapter}
+
+\renewcommand\chapterformat{%
+  \makebox[0pt][r]{\Huge{\thechapter}\enskip
+    \textcolor{white}{\smash{\rule[-0.5\dp\strutbox]{3pt}{1cm}}}%
+}}
+
+\newlength\chapterleftmargin
+\newcommand\chaptervmargin{1.5em}
+
+\makeatletter
+\renewcommand\chapterlinesformat[3]{%
+  \vspace*{\dimexpr-1in-\headsep-\headheight-\topmargin-1ex}%
+  \Ifthispageodd
+    {\setlength\chapterleftmargin{\dimexpr1in+\hoffset+\oddsidemargin\relax}}
+    {\setlength\chapterleftmargin{\dimexpr\paperwidth-\textwidth-1in-\hoffset-\oddsidemargin\relax}}
+    \hspace*{-\chapterleftmargin}%
+    \makebox[0pt][l]{%
+      \colorbox{uminho}{%
+        \parbox[t][\dimexpr\totalheight+\chaptervmargin*2\relax][c]{\dimexpr\paperwidth-2\fboxsep\relax}{%
+          \makebox[\dimexpr\chapterleftmargin-\fboxsep\relax][r]{#2}%
+          \Ifstr{#2}{}
+            {\parbox[t]{\textwidth}{\raggedchapter#3}}
+            {\enskip\parbox[t]{\dimexpr\textwidth-.5em\relax}{\raggedchapter#3}}%
+        }%
+      }%
+    }%
+}
+\makeatother
+%-------------------------------------------------------------------------------
+%	Section Style
+%-------------------------------------------------------------------------------
+\def\chpcolor{uminho}
+\def\chpcolortxt{uminho}
+\def\sectionfont{\Large\fontfamily{put}\selectfont}
+
+\setcounter{secnumdepth}{2}
+
+\makeatletter
+
+\def\@sectionstrut{\vrule\@width\z@\@height12.5\p@}
+\def\@makesectionhead#1{%
+  {\par%
+    \raggedleft\sectionfont
+   \colorbox{\chpcolor}{%
+     \parbox[t]{90pt}{\color{white}\@sectionstrut\@depth4.5\p@\hfill
+       \ifnum\c@secnumdepth>\z@\thesection\fi}%
+   }%
+   \begin{minipage}[t]{\dimexpr\textwidth-90pt-2\fboxsep\relax}
+   \color{\chpcolortxt}\@sectionstrut\hspace{5pt}#1
+   \end{minipage}\par
+   \vspace{10pt}%
+  }
+}
+\def\section{\@afterindentfalse\secdef\@section\@ssection}
+\def\@section[#1]#2{%
+  \ifnum\c@secnumdepth>\m@ne
+    \refstepcounter{section}%
+    \addcontentsline{toc}{section}{\protect\numberline{\thesection}#1}%
+  \else
+    \phantomsection
+    \addcontentsline{toc}{section}{#1}%
+  \fi
+  \sectionmark{#1}%
+  \if@twocolumn
+    \@topnewpage[\@makesectionhead{#2}]%
+  \else
+    \@makesectionhead{#2}\@afterheading
+  \fi
+}
+\def\@ssection#1{%
+  \if@twocolumn
+    \@topnewpage[\@makesectionhead{#1}]%
+  \else
+    \@makesectionhead{#1}\@afterheading
+  \fi
+}
+\makeatother
+%----------------------------------------------------------------------------------------
+%	Subsection Style
+%----------------------------------------------------------------------------------------
+\setkomafont{subsection}{\color{uminho}\Large}
+ 
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\normalfont
+
+\clearpairofpagestyles
+
+
+
+\pagenumbering{arabic} 
+
+\begin{flushleft}
+\includegraphics[scale = 0.075]{Minho_University.png}
+ \large{\\Universidade do Minho\\\normalsize{\today}}
+\end{flushleft}
+\rule{\textwidth}{0.5pt}
+\begin{flushright}
+\Huge{\textbf{O Método de \textit{Elbow}}} \\ {\Large Clusters particionais com dados numéricos}
+\includegraphics[scale = 0.55]{Cluster-Segmentation.png}
+\end{flushright}
+
+\begin{center}
+\rule{\textwidth}{0.5pt}
+\end{center}
+\begin{multicols*}{2}
+\noindent
+\large Bruno Jácome, A89515\\
+  Carolina Barros, A84950\\
+  Dinis Gomes, A87993\\
+  Joana Gouveia, A85650\columnbreak
+  \\João Silva, A84617\\
+  Jorge Gonçalves, A84133\\
+  Pedro Peixoto, A89602
+\end{multicols*}
+
+%----------------------------------------------------------------------------------------
+%	Índice
+%----------------------------------------------------------------------------------------
+\setlength{\leftmargini}{-0,35cm}
+\setlength{\leftmarginii}{-0,35cm}
+\setstretch{1.1}
+
+\renewcommand*\contentsname{Índice}
+\tableofcontents
+
+\renewcommand{\listfigurename}{Lista de Figuras}
+\listoffigures
+
+\renewcommand{\listtablename}{Tabelas}
+
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT AND KEYWORDS
+%----------------------------------------------------------------------------------------
+\newpage
+
+\setstretch{1.5}
+
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\ifoot*{\color{gray}Universidade do Minho}
+\ofoot*{\color{gray} \leftmark\hspace{0.25cm}|\hspace{0.25cm}\thepage}
+
+
+\renewcommand{\abstractname}{Sumário} 
+
+%Sumário se quisermos
+
+%----------------------------------------------------------------------------------------
+%	Introdução
+%----------------------------------------------------------------------------------------
+\chapter{Introdução}
+
+%Retirar palha e tentar tirar coisas para meter no sumário
+
+
+Este trabalho foi realizado no âmbito da Unidade Curricular de Matemática das Coisas e teve como principal objetivo o estudo de clusters particionais com dados numéricos (centróide) através do  \textit{The Elbow Method}.\par
+O presente relatório divide-se em 4 partes. Primeiramente, no Capítulo 2, será feita uma contextualização do assunto, apresentam-se a definição de clusters no geral e, mais em concreto, de clusters particionais.\par
+Seguidamente, no Capítulo 3, será descrito o conceito de centróide, bem como outros aspetos relevantes associados a este conceito.\par
+Depois, no Capítulo 4, serão abordados alguns algoritmos de clusters particionais, com a apresentação de algumas das suas aplicações mais práticas.\par
+No capítulo seguinte, apresentar-se-á o \textbf{método de elbow}, o assunto principal deste trabalho.\par 
+Para finalizar, expor-se-á uma breve conclusão do trabalho apontando-se essencialmente as desvantagens do método de \textit{elbow}.
+
+%----------------------------------------------------------------------------------------
+%	Definição de clusters 
+%----------------------------------------------------------------------------------------
+\newpage
+
+\chapter{Clusters}
+\section{O que são?}
+\begin{wrapfigure}{r}{0.45\textwidth}
+\vspace{-1cm}
+\includegraphics[scale=0.2]{cluster1.png}
+\caption{Agrupamento de clusters.}
+\end{wrapfigure}
+
+\quad Um \textbf{cluster} é um conjunto de objetos similares entre si e dissimilares em relação a objetos noutros clusters. A análise de clusters ou o seu conceito, é um procedimento humano normal, muitas vezes usado de forma inconsciente.
+%\par Muito cedo nas escolas, os alunos aprendem a classificar e agrupar, por exemplo distinguir entre gatos e cães, entre animais e plantas, progredindo num refinamento de classificação que tem subjacente teorias de \textit{clustering}. 
+\par A análise de clusters é usada em inúmeras aplicações, tais como no reconhecimento de padrões (\textit{machine learning}), processamento de imagem e pesquisas de mercado.
+
+
+
+%\subsection{Clustering na História}
+%\quad O primeiro registo publicado sobre um método de clustering foi feito em 1948, com o trabalho de \textit{SORENSEN} (1948) que descreve o Método Hierárquico de Ligação Completa. Desde então mais de uma centena de algoritmos distintos de clustering já foram definidos. 
+
+
+\section{Clusters Particionais}
+\subsection{O que são?}
+\quad Cluster particional define-se, especificamente, quando se utiliza um agrupamento particional que consiste em dividir os dados em subconjuntos sem que haja interseções, o que leva a que cada objeto esteja exatamente num subconjunto.
+
+
+\section{\textit{Clustering}}
+
+
+\quad O \textit{clustering} é o conjunto de técnicas de prospeção de dados, isto é, exames minuciosos e metódicos, que fazem agrupamentos automáticos de dados segundo o seu grau de semelhança. Normalmente o usuário do sistema deve escolher a priori o número de grupos a serem detetados. Alguns algoritmos mais sofisticados pedem apenas o número mínimo e outros tem a capacidade de subdividir um grupo em dois. Existem vários tipos de agrupamentos, mas o que analisaremos com mais detalhe serão os agrupamentos \textbf{particionais}.
+
+
+%---------------------------------------------------------
+% Centróides
+%---------------------------------------------------------
+
+
+\chapter{Centróides}
+\section{O que são?}
+\quad Um \textbf{centróide} é o ponto que representa o \textit{centro} de todos os pontos pertencentes a um cluster.
+No que diz respeito aos modelos centróides, a noção de similaridade deriva da proximidade dos pontos com o centróide do \textit{cluster}.\par
+\par Estes são obtidos através de operações algébricas e, em regra, não pertencem à base de dados. Logo, são uma mera interpretação de resultados e que dependem maioritariamente da definição de proximidade entre dois objetos de estudo.
+
+\section{Relação entre centróide e média}
+\subsection{Semelhanças}
+\quad A \textit{média} de um cluster é o mesmo que o centróide, contudo o termo \textbf{centróide} é mais preciso quando se estuda \textit{multivariate data}, isto é, dados multivariados. 
+\par Um centróide é às vezes denominado de \textbf{centro de massa} ou  \textbf{barycenter} (centro de gravidade), baseado na sua interpretação física. Assim como a média, a localização do centróide \textbf{minimiza a soma dos quadrados das distâncias entre os pontos} ou \textbf{WCSS (With-in cluster sum-squared)}.
+
+
+
+\subsection{Diferenças}
+\par Há, no entanto, uma diferença entre \textbf{distância de centróide} e \textbf{distância média} quando se comparam clusters. A distância de centróide entre dois quaisquer clusters A e B é simplesmente a distância entre o centróide de A e o centróide de B. Já a distância média é calculada encontrando-se a distância média entre todos os pares de pontos de cada cluster.
+
+%\begin{myequation}[!ht]
+%$$
+%	 \text{dist(}A,B\text{)} = \frac{\sum_{ij}\text{dist(}a_i,b_j\text{)}}{\#A \times \#B} , \quad \forall a_i \in A, b_j \in B $$
+%
+%\caption{Métrica de Clusters: Distância média}
+%\vspace{0.5cm}
+%$$
+%	 \text{dist(}A,B\text{)} = \text{dist\Bigg(}\frac{\sum_{i} a_i}{\#A}\text{,}\frac{\sum_{i} b_i}{\#B}\text{\Bigg)} , \quad \forall a_i \in A, b_i \in B $$
+%
+%\caption{Métrica de Clusters: Distância entre centróides}
+%\end{myequation}
+%
+%Estes dois cálculos são duas métricas possíveis para calcular a distância entre dois clusters, mas existem mais métodos. Ver em \cite{dist_clusters}.
+
+%\subsection{Exemplo}
+
+%\section{Como se determinam?}
+
+
+%------------------------------------------------------------
+%	Algoritmos
+%-----------------------------------------------------------
+
+\chapter{Algoritmos de Clusters Particionais}
+O Cluster Particional tem dois algoritmos: o \textit{K-means} e o \textit{K-medoids}. Estes algoritmos tem as suas diferenças. Uma delas é o facto de no algoritmo \textit{K-means} termos a soma máxima das distâncias e no algoritmo \textit{K-medoids} termos a soma mínima nas distancias. A execução destes métodos podem ser representados graficamente por diagramas de Voronoi criando \textbf{células de Voronoi}, que no caso do \textit{k-means}, cria células distintas associadas a cada centróide, isto é, distingue cada cluster. 
+
+%\section{Representação dos Dados}
+%
+%\begin{itemize}[leftmargin=0.375cm]
+%  \item $(x^{(1)},x^{(2)},...,x^{m})$ representa a base de dados D. $m$ é o número total de dados.
+%\item K representa o número de clusters
+%\item $(m^{1},...,m^{k},...,m^{K})$ K pontos distintos de D
+%\item d representa uma função distância
+%\end{itemize}
+
+\section{K-means}
+\subsection{O que é?}
+\begin{wrapfigure}[8]{r}{0.5\textwidth}
+  \centering
+  \vspace{-2cm}
+  \animategraphics[autoplay, loop, scale=0.8]{1}{kmeans/kmeans-}{0}{14} %14
+  \caption{\normalfont Convergência do \textit{K-means}}
+  \end{wrapfigure}
+  
+\quad O \textit{k-means} é um algoritmo de \textit{clustering} bastante comum e popular usado por numerosos investigadores em todo o mundo. Este tem por objetivo pôr em partes $m$ observações dentro de $k$ clusters, onde cada observação está dentro do cluster com o qual está mais próxima, usando o diagrama de \textit{Voronoi}.
+Nestes modelos, os números de clusters necessários no final ($k$) têm de ser mencionados com antecedência, o que torna importante o conhecimento prévio do conjunto de dados. \cite{kmeans}
+\vspace{-0.5cm}
+\subsection{Restrições}
+\quad Uma restrição que este algoritmo tem é o facto de apenas funcionar com atributos quantitativos, necessita de fazer operações algébricas, como somas e multiplicações por escalar, que dará origem a uma matriz que é chamada "matriz da partição". A nível de pontos que se encontram fora da curva, temos de ter cuidado pelo facto de os mesmos poderem facilmente influenciar o valor da média e levar a mesma a alterar-se.
+\subsection{Determinação do K-Means}
+
+\begin{algorithm}
+\caption{Pseudocódigo K-means}\label{kmeans}
+\begin{algorithmic}
+\Procedure{k-means}{K, Conjunto de dados = \{$x^{(1)}, x^{(2)}, ..., x^{(m)}$\}}
+\State Inicializar \textbf{aleatoriamente} K centróides $\mu_1, \mu_2, ..., \mu_K \in I\!R$
+\Repeat
+	\For {$i=1$ até $m$} \color{uminho}\Comment{\small Passo de associação de centróides\color{black}}
+	\State$c^{(i)} := $ indíce (de $i$ até $K$) do centróide mais próximo de $x^{(i)}$ \color{uminho!70!black}\Comment{\small (d($x^{(i)}$, $\mu_i$) mínima)\color{black}} 
+	\EndFor
+	\For {$k=1$ até $K$} \color{uminho}\Comment{\small Passo de reajustamento de centróides\color{black}}
+	\State $\mu_k := $ ponto médio dos pontos no cluster $k$
+	\EndFor
+\Until{nenhum centróide se reajustar}
+
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+Ver mais em \cite{coursera1}.
+
+\begin{figure}[h!]
+  \begin{center}
+  \animategraphics[controls, autoplay, loop, scale = 0.5]{24}{k2/kmeans-}{0}{898} %898
+  \end{center}
+  \caption{\normalfont\textit{k-means clustering} com \textbf{k = 2}}
+\end{figure}
+
+
+\newpage
+\section{K-medoids}
+\subsection{O que é?}
+\begin{wrapfigure}[7]{r}{0.5\textwidth}
+  \centering
+  \vspace{-2cm}
+  \animategraphics[autoplay, loop, scale=0.6]{1}{pam/pam-}{0}{6} %6
+  \caption{\normalfont\textit{PAM} com \textbf{k = 3}}
+  \end{wrapfigure}
+O \textit{k-medoid} ou \textit{partioning around medoids} (\textbf{PAM}) são algoritmos de \textit{clustering} reminiscentes do algoritmo de \textit{k-means}, na medida em que ambos operam de modo particional e ambos tentam minimizar a distância entre os pontos e o centróide, dentro de um cluster. \cite{pam}
+
+
+
+\subsection{Medóide} 
+\quad Uma ideia semelhante à de centróide é a de \textbf{medóide}, que é o \textit{data point} que é \textit{menos parecido} de todos os outros pontos de dados. 
+\par Ao contrário do centróide, a medóide tem de ser um dos pontos originais. 
+
+
+
+\section{Diferença entre K-Means e K-Medoids}
+\subsection{A nível de sensibilidade}
+\quad O \textit{K-medoid} lida melhor com os \textit{outliers} (pontos fora da curva) do que o \textit{K-means}. É menos sensível a eles, porque minimiza a soma das diferenças, contrariamente a \textit{k-means}, que maximiza.
+\subsection{A nível de Centróide}
+\quad O centro de \textit{k-medoids} não é o ponto médio mas sim um ponto real, porque é o objeto mais centralmente localizado do cluster, que como já referimos, tem somas mínimas de distancia.
+\subsection{A nível atributos}
+\quad Os atributos de \textit{K-medoids} podem ser atributos quantitativos, tal como \textit{k-mean}, mas também podem ser atributos qualitativos, o que leva a que não exista uma necessidade e obrigação do uso de operações algébricas neste algoritmo. Estes atributos encontram-se representados na base de dados.
+
+
+%----------------------------------------------------------------------------------------
+%"The Elbow Method"
+%----------------------------------------------------------------------------------------
+
+\chapter{O Método de \textit{Elbow}}
+\section{O que é?}
+\quad Uma etapa fundamental para qualquer aprendizagem não-supervisionada é determinar o número ideal de clusters nos quais os dados podem ser agrupados: \textbf{K}.
+\par O \textbf{Método de Elbow} é uma heurística, uma vez que é um método criado para encontrar soluções sobre um problema complexo, como uma medida que preserva e conserva energia e os recursos mentais. Neste caso, para determinar o número ideal de clusters no \textit{k-means clustering}, este método parcela o valor da função custo produzida pelos diferentes valores de \textbf{K}. Ora, isto só é possível ignorando parte da informação com o objetivo de tornar a escolha mais fácil e rápida.
+\par
+Sendo assim, não há uma resposta universal para este problema já que o número ideal de \textit{clusters} é de alguma forma subjetivo e depende não só do propósito do \textit{clustering}, mas também do método usado para medir as similaridades e os parâmetros usados para particionar. 
+
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.3]{example_clustering}
+\caption{Número de clusters (3 \textit{vs} 5) representando tamanhos de \textit{t-shirts}.}
+\end{figure}
+Ver em \cite{coursera2}.
+\newpage
+\section{Pré-aplicação}
+\quad
+Numa fase inicial, criar um dendrograma, ou seja, um diagrama que organize as variáveis, agrupando-as de forma hierárquica ascendente - o que em termos gráficos se assemelha aos ramos de uma árvore.
+\par 
+Seguidamente, inspecionar o dendrograma produzido usando o cluster hierárquico para verificar se ele sugere um número específico de clusters. (Todavia, esta abordagem também é subjetiva.)
+\par
+Estes métodos, apresentados a seguir, incluem métodos diretos e teste estatístico.
+\begin{itemize}[leftmargin=1cm]
+\item \textbf{Métodos diretos}: consistem em otimizar um critério, como a somas dos quadrados das distâncias \textit{intra-cluster} (\textit{With-in Cluster Sum of Squares}) ou a média \textit{silhouette}. Os métodos correspondentes são denominados métodos de \textit{Elbow} e \textit{silhouette}, respetivamente.
+\item \textbf{Métodos de teste estatístico}: consistem em comparar evidências contra hipóteses nulas. Um exemplo é a estatística de gap.
+\end{itemize}
+%----------------------------------------------------------------------------------------
+\section{WCSS}
+
+\subsection{Ilusão de solução ótima}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \centering
+  \includegraphics[scale=0.25]{wcss_global_minimize}
+  \caption{\textit{WCSS} mínimo}
+  \label{fig:wcss_min}
+\end{wrapfigure}
+  
+\par Comummente, considera-se que para se obter a solução ótima de número de clusters, deve-se calcular o mínimo de \textbf{WCSS}. 
+Porque será então isto um erro?
+
+\par Para um valor mínimo de \textit{WCSS}, a solução ótima de número de clusters é igual ao número total de \textit{data points}. A noção de cluster acaba por perder o seu propósito, acabando por ser uma solução trivial para o problema.
+
+
+\begin{wrapfigure}[6]{l}{0.5\textwidth}
+  \centering
+  \includegraphics[scale=0.25]{wcss_maximize}
+  \caption{\textit{WCSS} máximo}
+\end{wrapfigure}
+
+\par Por oposição, para um valor máximo de \textit{WCSS}, a solução ótima seria apenas um cluster, isto é óbvio uma vez que a soma do quadrado das distâncias \textit{intra-cluster} só poderia ser máxima se este contivesse todos os pontos.
+
+\subsection{Solução ótima para o problema}
+
+\begin{wrapfigure}[7]{r}{0.4\textwidth}
+  \centering
+  \includegraphics[scale=0.25]{wcss_otimo}
+  \caption{Solução ótima}
+  \end{wrapfigure}
+  
+\quad Em boa verdade, não há. 
+Como foi dito anteriormente, o número de clusters ótimo depende de vários fatores, inclusivé do objetivo de cada "clusterização"\space específica. 
+
+
+\par Contudo, com a ajuda do \textbf{método Elbow}, é possível obter um resultado ótimo de \textbf{equilíbrio} entre o \textbf{número de clusters} e \textbf{WCSS}.
+
+
+
+%--------------------------------------------------
+\section{Aplicação}
+\quad O método de Elbow considera o \textit{WCSS} total como uma função do número de clusters: deve-se escolher um número de clusters para que a adição de outro cluster não melhore muito mais o \textit{WCSS} total.\par
+O número ótimo de clusters pode ser obtido da seguinte forma:\par
+\begin{enumerate}[leftmargin=2cm, align=left]
+\item	Aplicar o algoritmo de \textit{clustering}, por exemplo, \textit{k-means clustering}, para diferentes valores de \textit{k}.\par
+\item	Para cada \textit{k}, calcular o \textit{WCSS};\par
+\item	Representar, graficamente, o \textit{WCSS} em função do k;\par
+\item	Localizar, no gráfico, a curva com uma aparência de \textbf{cotovelo (elbow)}, geralmente considerado o indicador do número ótimo de \textit{clusters}.\par
+\end{enumerate}
+ 
+Ver em \cite{Yellowbrick, datanovia}.
+
+\begin{figure}[h]
+  \begin{center}
+  \animategraphics[controls, autoplay, loop, scale = 0.65]{24}{elbow_method/elbow-}{0}{956} %956
+  \end{center}
+  \caption{\normalfont Procedimentos do método de \textit{method}}
+  \end{figure}
+
+
+\begin{figure}[h!]
+  %\begin{wrapfigure}{r}{0.6\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{3.png}
+    \caption{Valor de WCSS \textit{versus} número de \textit{clusters}}   
+    \label{wrapfig:wcss_k}
+ % \end{wrapfigure}
+\end{figure}
+
+\textsc{Asanka Perera} afirma que, "após ter lido alguns artigos, descobriu que se desenharmos uma
+linha reta entre o ponto 1 e 10, e se calcularmos a distância de cada ponto até à linha, o ponto com
+a maior distância será o ponto que contém o cotovelo". Ver em \cite{asanka}.
+
+
+
+%\newpage
+%\subsection{Código em \textit{Python}}
+%\quad Uma codificação simples em \textit{pyton} deste método pode ser:
+%
+%\begin{figure}[!h]
+%%  \centering
+%%  \includegraphics[scale=0.7]{1.png}
+%%  \caption{Exemplo de codificação em \textit{python}
+%%   do \textit{elbow method}}  
+%%   \label{fig:cod_python}
+%%\end{figure}
+%%----------------------------------------------------------------------------------------
+%
+%%----------------------------------------------------------------------------------------
+%%Exemplos
+%%----------------------------------------------------------------------------------------
+%\newpage
+%\chapter{Exemplos ilustrativos}
+%\quad Mais fundamental que apenas expor a teoria por detrás dos conceitos abordados, será mesmo mostrar, de forma ilustrativa, o resultado da aplicação desta teoria. Com a intenção de facilitar a assimilação do estudo, apresentamos de seguida uma série de animações sobre alguns dos processos descritos. 
+%
+%\section{Exemplo de código}
+%
+%Para aplicar o algoritmo, precisamos de primeiro criar alguns conjuntos aleatórios de pontos e distribuí-los com algum espaçamento.
+%
+%\bigskip
+%\begin{lstlisting}
+%points = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=0);
+%points.scatter(distance=1.5);
+%\end{lstlisting}
+%
+%\begin{center}
+%\includegraphics[scale=0.5]{ex1.png}
+%\end{center}
+%
+%De seguida vamos aplicar K-means aos nossos pontos. Vamos aplicar a função várias vezes, para números de clusters  desde 1 até 9 e vamos guardar o valor de WCSS de cada resultado.
+%
+%\begin{lstlisting}
+%int wcss[10]; 
+%
+%for(int i=1; i<10; i+=1) {
+%	kmeans = points.KMeans(n_clusters=i, init="k-means++", max_iter=300, n_init=10, random_state=0);
+%	wcss[i] = kmeans.getWCSS();
+%}
+%\end{lstlisting}
+%
+%%
+%%Prestemos agora atenção à seguinte animação que prentende mostrar a aplicação do \textit{k-means clustering} considerando \textbf{K = 2}. Ver em \cite{kmeans-clustering}.
+%%
+%%\section{\textit{K-means} com K = 2}
+%%
+%%\begin{figure}[h]
+%%\begin{center}
+%%\animategraphics[controls, autoplay, loop, scale = 0.7]{24}{k2/kmeans-}{0}{0} %898
+%%\end{center}
+%%\caption{\normalfont\textit{k-means clustering} com \textbf{k = 2}}
+%%\end{figure}
+%%
+%%\newpage
+%%\section{\textit{K-means} com K = 3}
+%%
+%%Analogamente, aplicando ao mesmo conjunto de \textit{data points} agora com \textbf{k = 3}. Ver em \cite{kmeans-clustering}:
+%%
+%
+%
+%%Ora, o procedimento será idêntico para qualquer K maior do que estes valores. No entanto, o k é escolhido aleatoriamente. O que aconterá se aplicarmos o \textbf{método de \textit{Elbow}} ?
+%%\newpage
+%\section{O método de \textit{Elbow}}
+%
+%\quad Assim como na figura \ref{fig:wcss_k}, uma representação gráfica e sua interpretação, a partir de uma codificação (em \textit{Python}), do método de \textit{elbow}, utilizando o \textit{k-means clustering} e o \textit{WCSS}. Ver em \cite{elbow_method}.
+% 
+%
+%
+%-------------------------------------------------------
+% Conclusão
+%-------------------------------------------------------
+
+\chapter{Conclusões}
+
+\quad Apesar de bastante prático, devido ao método de \textit{Elbow} ser um método visual, este tem uma interpretação subjetiva e nem sempre clara.
+Mais concretamente, o verdadeiro \textit{elbow}, ou cotovelo, nem sempre é identificado sem ambiguidade já que, pode ou nem haver nenhum, ou nem haver um só único. 
+\par Além disso, verifica-se, em geral, que ocorrem abruptas distorções descendentes até k=3, a partir do qual a curva descende lentamente. De facto, como é explicado na figura \ref{fig:wcss_min}, à medida que K cresce, o número de \textit{data points} por cluster diminui, até que K seja esse número e, nesse caso, \textit{WCSS} é 0. Logo, torna-se óbvio que o número ideal de clusters nunca será elevado, a menos que o utilizador o queira, mas nesse caso nem fará sentido auxiliar-se neste método.
+\par Outros problemas associados ao método, devem-se à aplicação do \textit{k-means}. O algoritmo mais comum usa uma técnica de refinamento iterativo e é muitas vezes chamado de  algoritmo de \textit{Lloyd}. Embora existam alternativas bem mais eficientes, este algoritmo tem um longo tempo de execução, particularmente a calcular as distâncias de cada nodo em relação aos K centróides. Já que, a maior parte dos pontos ficam associados aos mesmos centróides após algumas iterações, a maior parte deste trabalho é inútil, tornando esta implementação bastante ineficiente.
+
+
+
+
+\pagestyle{empty}
+\begin{thebibliography}{9}
+\clearpairofpagestyles
+
+
+\bibitem{Yellowbrick}
+\textsc{The scikit-yb developers},
+{\em Elbow Method},
+\\\url{https://www.scikit-yb.org/en/latest/api/cluster/elbow.html}
+\\(13/04/2020)
+
+
+\bibitem{datanovia}
+{\em Determining The Optimal Number Of Clusters: 3 Must Know Methods},
+\\\url{https://www.datanovia.com/en/lessons/determining-the-optimal-
+number-of-clusters-3-must-know-methods/\#elbow-method}
+\\(13/04/2020)
+
+
+\bibitem{asanka} 
+\textsc{Asanka Perera},
+{\em Finding the optimal number of clusters for K-Means through Elbow
+method using a mathematical approach compared to graphical approach},
+\\\url{https://www.linkedin.com/pulse/finding-optimal-number-clusters-k-means-through-
+elbow-asanka-perera}
+\\(13/04/2020)
+
+
+\bibitem{Lachi} 
+\textsc{Lachi, Ricardo Luís \& Rocha, Heloísa Vieira da. Fevereiro 2005},
+{\em Aspectos básicos de \textit{clustering}: conceitos e técnicas(Brasil)}
+\\(13/04/2020)
+
+
+\bibitem{clusterizacao}
+\textsc{Rodrigo Cezar Menezes},
+{\em Clusterização de Dados},
+\\\url{https://www.maxwell.vrac.puc-rio.br/24787/24787_5.PDF}
+\\(13/04/2020)
+
+
+\bibitem{clustering}
+\textsc{Manuel Altino Torres Aniceto Castro},
+{\em Agrupamento – “Clustering”},
+\\\url{http://www.dei.isep.ipp.pt/~paf/proj/Julho2003/Clustering.pdf}
+\\(13/04/2020)
+
+
+
+\bibitem{dist_clusters}
+\textsc{Victor Lavrenko},
+{\em Hierarchical Clustering 3: single-link vs. complete-link},
+\\\url{https://www.youtube.com/watch?v=VMyXc3SiEqs}
+\\(13/04/2020)
+
+
+
+
+\bibitem{kmeans-clustering}
+\textsc{Victor Lavrenko}
+{\em K Means Clustering: Pros and Cons of K Means Clustering},
+\\\url{https://www.youtube.com/watch?v=YIGtalP1mv0}
+\\(13/04/2020)
+
+
+
+\bibitem{elbow_method}
+\textsc{Test My ChatBot},
+{\em How to Choose the Number of Clusters | Advanced Statistical Methods - K-Means Clustering},
+\\\url{https://www.youtube.com/watch?v=SCA07-7Xe6Q}
+\\(13/04/2020)
+
+
+
+\bibitem{pam}
+{\em k-medoids},
+\\\url{https://en.wikipedia.org/wiki/K-medoids}
+\\(13/04/2020)
+
+\bibitem{coursera1}
+\textsc{Universidade de Stanford},
+{\em K-Means Algorithm},
+\\\url{
+https://pt.coursera.org/lecture/machine-learning/k-means-algorithm-93VPG
+}
+\\(13/04/2020)
+
+
+\bibitem{coursera2}
+\textsc{Universidade de Stanford},
+{\em K-Means Algorithm},
+\\\url{
+https://pt.coursera.org/lecture/machine-learning/choosing-the-number-of-clusters-Ks0E9
+}
+\\(13/04/2020)
+
+\bibitem{kmeans}
+{\em k-means clustering},
+\\\url{https://en.wikipedia.org/wiki/K-means_clustering}
+\\(13/04/2020)
+
+\end{thebibliography}
+
+\end{document}

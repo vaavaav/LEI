@@ -1,0 +1,29 @@
+\babel@toc {portuguese}{}
+\contentsline {chapter}{\numberline {1}Introdução}{4}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Clusters}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}O que são?}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Clusters Particionais}{5}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}O que são?}{5}{subsection.2.2.1}%
+\contentsline {section}{\numberline {2.3}\textit {Clustering}}{5}{section.2.3}%
+\contentsline {chapter}{\numberline {3}Centróides}{6}{chapter.3}%
+\contentsline {section}{\numberline {3.1}O que são?}{6}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Relação entre centróide e média}{6}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Semelhanças}{6}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Diferenças}{6}{subsection.3.2.2}%
+\contentsline {chapter}{\numberline {4}Algoritmos de Clusters Particionais}{7}{chapter.4}%
+\contentsline {section}{\numberline {4.1}K-means}{7}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}O que é?}{7}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Restrições}{7}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Algoritmo \textit {K-means}}{8}{subsection.4.1.3}%
+\contentsline {section}{\numberline {4.2}K-medoids}{9}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}O que é?}{9}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Medóide}{10}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Diferença entre K-means e K-medoids}{10}{section.4.3}%
+\contentsline {chapter}{\numberline {5}O Método de \textit {Elbow}}{11}{chapter.5}%
+\contentsline {section}{\numberline {5.1}O que é?}{11}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Pré-aplicação}{12}{section.5.2}%
+\contentsline {section}{\numberline {5.3}WCSS}{12}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Ilusão de solução ótima}{12}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Solução ótima para o problema}{13}{subsection.5.3.2}%
+\contentsline {section}{\numberline {5.4}Aplicação}{13}{section.5.4}%
+\contentsline {chapter}{\numberline {6}Conclusões}{15}{chapter.6}%
