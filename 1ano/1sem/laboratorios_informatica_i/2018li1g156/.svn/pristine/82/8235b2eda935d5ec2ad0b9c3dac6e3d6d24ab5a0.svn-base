@@ -1,0 +1,228 @@
+  -- | Este módulo define funções comuns da Tarefa 5 do trabalho prático.
+module Main where
+import Graphics.Gloss
+import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Juicy
+import LI11819
+import Tarefa0_2018li1g156
+import Tarefa1_2018li1g156
+import Tarefa2_2018li1g156
+import Tarefa4_2018li1g156
+
+
+type Cronometro = Int
+
+type DataJogo = (Estado, Cronometro)
+
+
+-- | Função principal da Tarefa 5.
+--
+-- __NB:__ Esta Tarefa é completamente livre. Deve utilizar a biblioteca <http://hackage.haskell.org/package/gloss gloss> para animar o jogo, e reutilizar __de forma completa__ as funções das tarefas anteriores.
+main :: IO ()
+main = do
+        play window              -- janela onde irá correr o jogo
+             (greyN 0.5)     -- côr do fundo da janela
+             fr              -- frame rate
+             dataJogo   -- estado inicial
+             desEstado   -- desenha o estado do jogo
+             reageEvento     -- reage a um evento
+             reageTempo      -- reage ao passar do tempo
+
+cores :: [Color]              
+cores = [yellow,red,rose,green]
+
+coresX :: [Color]
+coresX = [makeColorI 255 255 0 50,makeColorI 255 0 0 50,makeColorI 255 51 153 50,makeColorI 0 255 0 50]
+
+window :: Display
+window = FullScreen
+
+fr :: Int
+fr = 1
+
+tm :: Float
+tm = 25.0
+
+tankGen :: Picture
+tankGen = Polygon [(tm,-tm),(tm,tm),(-tm,tm),(-tm,-tm),(tm,-tm)]
+bloco :: Picture
+bloco = Polygon [(0,0),(tm,0),(tm,tm),(0,tm),(0,0)] 
+
+blocoI :: Picture
+blocoI = Color blue bloco
+
+blocoD :: Picture
+blocoD = Color orange bloco
+
+vaz :: Picture
+vaz = Color white (Line [(0,0),(tm,0),(tm,tm),(0,tm),(0,0)])
+
+
+listColJ :: [Picture]
+listColJ = [tankq,tankq1,tankq2,tankq3]
+
+tankq = Pictures [Color yellow tankGen,Color blue linha]
+tankq1 = Pictures [Color red tankGen,Color blue linha]
+tankq2 = Pictures [Color rose tankGen,Color blue linha]
+tankq3 = Pictures [Color green tankGen,Color blue linha] 
+
+linha :: Picture
+linha = Polygon [(-2,0),(-2,tm-4),(2,tm-4),(2,0)]
+
+tiroCD :: Picture
+tiroCD = Polygon [(0,0),(-3,-4),(-3,-10),(0,-9),(3,-10),(3,-4),(0,0)]
+
+tiroLD :: Picture
+tiroLD = Polygon [(-5,0),(5,0),(5,-tm),(-5,-tm),(-5,0)]
+
+tiroXD :: Picture
+tiroXD = Polygon [(3*tm,-3*tm),(3*tm,3*tm),(-3*tm,3*tm),(-3*tm,-3*tm),(3*tm,-3*tm)]
+
+estadoInicial :: Estado
+estadoInicial = Estado (constroi teste3) ([Jogador (2,2) B 3 3 3,Jogador (20,2) D 3 3 3,Jogador (2,20) E 3 3 3,Jogador (20,20) C 3 3 3]) ([])
+
+dataJogo :: DataJogo 
+dataJogo = (estadoInicial, 0)
+
+desEstado :: DataJogo -> Picture
+desEstado (e@(Estado m js ds),ti) = Pictures [(Pictures (desMapa m (((-y)*tm), (x-1)*tm))), 
+                                   Pictures (desJogs (((-y+1)*tm), (x-1)*tm) js 0), 
+                                   Pictures (desCanhoes (((-y+1)*tm), (x-1)*tm) ds), 
+                                   Pictures ((desLasers (((-y+1)*tm), (x-1)*tm) m ds)), 
+                                   Pictures (desChoques (((((-y)*tm))+tm), (x-1)*tm) js ds),
+                                   stats e, timer ti]
+ where (x,y) = let (a,b) = dimensaoMatriz m in (fromIntegral a / 2.0, fromIntegral b / 2.0) 
+
+
+desMapa ::  Mapa -> (Float, Float) -> [Picture]
+desMapa [] _ = []
+desMapa (h:t) (x,y) = mapaL h (x,y) ++ desMapa t (x,y-tm)
+               where mapaL [] _ = []
+                     mapaL (h:t) (x,y) = case h of 
+                             Bloco Indestrutivel -> (Translate x y blocoI) : mapaL t (x+tm,y)
+                             Bloco Destrutivel -> (Translate x y blocoD) : mapaL t (x+tm,y)
+                             Vazia -> (Translate x y vaz) : mapaL t (x+tm,y)
+
+
+
+desJogs :: (Float,Float) -> [Jogador] -> Int -> [Picture]
+desJogs _ [] _ = []
+desJogs (x,y) (j@(Jogador (m,n) d v _ _):js) q | v <= 0 = desJogs (x,y) js (q+1) 
+                                                | otherwise = (Translate ((c*tm)+x) (y-(l*tm)) (direcaoRoda d p)): desJogs (x,y) js (q+1)
+                                   where (l,c) = (fromIntegral m,fromIntegral n)
+                                         p = encontraIndiceLista q listColJ
+
+
+desCanhoes :: (Float,Float) -> [Disparo] -> [Picture]
+desCanhoes _ [] = []
+desCanhoes (x,y) (d:ds) = case d of
+      DisparoCanhao num (m,n) dir -> (Translate ((c*tm)+x) (y-(l*tm)) ((Color (encontraIndiceLista num cores) . direcaoRoda dir) tiroCD)) : desCanhoes (x,y) ds
+        where (l,c) = (fromIntegral m,fromIntegral n)
+      _ -> desCanhoes (x,y) ds
+
+
+desLasers :: (Float,Float) -> Mapa -> [Disparo] -> [Picture]
+desLasers _ [] _ = []
+desLasers _ _ [] = []
+desLasers (x,y) m (d:ds) = case d of 
+      DisparoLaser n (l',c') dir -> (Translate ((c*tm)+x) (y-(l*tm)) $ (Color (encontraIndiceLista n cores) . direcaoRoda dir) (Pictures (laserPic (alcanceLaser d m)))) : desLasers (x,y) m ds            where (l,c) = (fromIntegral l',fromIntegral c') 
+      _ -> desLasers (x,y) m ds
+
+
+laserPic :: Float -> [Picture]
+laserPic x | x == 0 = []
+           | otherwise = (Translate 0 (x*tm) tiroLD): laserPic (x-1) 
+
+        
+alcanceLaser :: Disparo -> Mapa -> Float
+alcanceLaser d@(DisparoLaser n pos dire) m | stop = 0
+                                           | otherwise =  1 + alcanceLaser d{posicaoDisparo = somaVetores pos $ direcaoParaVetor dire} m
+  where [bloco1, bloco2] = map (somaVetores pos) (blocosVet dire)
+        stop = encontraPosicaoMatriz bloco1 m == Bloco Indestrutivel || encontraPosicaoMatriz bloco2 m == Bloco Indestrutivel
+
+
+desChoques :: (Float,Float) -> [Jogador] -> [Disparo] -> [Picture]
+desChoques _ _ [] = []
+desChoques (x,y) (j:js) (d:ds) = case d of
+      DisparoChoque num _ -> (Translate ((c*tm)+x) (y-(l*tm)) (Color (encontraIndiceLista num coresX) tiroXD)): desChoques (x,y) (j:js) ds
+             where (m,n) = posicaoJogador (encontraIndiceLista num (j:js))
+                   (l,c) = (fromIntegral m, fromIntegral n)
+      _ -> desChoques (x,y) (j:js) ds
+
+
+reageEvento :: Event -> DataJogo -> DataJogo
+reageEvento (EventKey (Char 'w') Down _ _) (est,ti) = (jogada 0 (Movimenta C) est,ti)
+reageEvento (EventKey (Char 's') Down _ _) (est,ti) = (jogada 0 (Movimenta B) est,ti)
+reageEvento (EventKey (Char 'd') Down _ _) (est,ti) = (jogada 0 (Movimenta D) est,ti)
+reageEvento (EventKey (Char 'a') Down _ _) (est,ti) = (jogada 0 (Movimenta E) est,ti)
+reageEvento (EventKey (Char 't') Down _ _) (est,ti) = (jogada 1 (Movimenta C) est,ti)
+reageEvento (EventKey (Char 'h') Down _ _) (est,ti) = (jogada 1 (Movimenta D) est,ti)
+reageEvento (EventKey (Char 'g') Down _ _) (est,ti) = (jogada 1 (Movimenta B) est,ti)
+reageEvento (EventKey (Char 'f') Down _ _) (est,ti) = (jogada 1 (Movimenta E) est,ti)
+reageEvento (EventKey (Char 'i') Down _ _) (est,ti) = (jogada 2 (Movimenta C) est,ti)
+reageEvento (EventKey (Char 'l') Down _ _) (est,ti) = (jogada 2 (Movimenta D) est,ti)
+reageEvento (EventKey (Char 'k') Down _ _) (est,ti) = (jogada 2 (Movimenta B) est,ti)
+reageEvento (EventKey (Char 'j') Down _ _) (est,ti) = (jogada 2 (Movimenta E) est,ti)
+reageEvento (EventKey (SpecialKey KeyUp) Down _ _) (est,ti) = (jogada 3 (Movimenta C) est,ti)
+reageEvento (EventKey (SpecialKey KeyRight) Down _ _) (est,ti) = (jogada 3 (Movimenta D) est,ti)
+reageEvento (EventKey (SpecialKey KeyDown) Down _ _) (est,ti) = (jogada 3 (Movimenta B) est,ti)
+reageEvento (EventKey (SpecialKey KeyLeft) Down _ _) (est,ti) = (jogada 3 (Movimenta E) est,ti) 
+reageEvento (EventKey (Char '1') Down _ _) (est,ti) = (jogada 0 (Dispara Canhao) est,ti)
+reageEvento (EventKey (Char '2') Down _ _) (est,ti) = (jogada 0 (Dispara Laser) est,ti)
+reageEvento (EventKey (Char '3') Down _ _) (est,ti) = (jogada 0 (Dispara Choque) est,ti)
+reageEvento (EventKey (Char '4') Down _ _) (est,ti) = (jogada 1 (Dispara Canhao) est,ti)
+reageEvento (EventKey (Char '5') Down _ _) (est,ti) = (jogada 1 (Dispara Laser) est,ti)
+reageEvento (EventKey (Char '6') Down _ _) (est,ti) = (jogada 1 (Dispara Choque) est,ti)
+reageEvento (EventKey (Char '7') Down _ _) (est,ti) = (jogada 2 (Dispara Canhao) est,ti)
+reageEvento (EventKey (Char '8') Down _ _) (est,ti) = (jogada 2 (Dispara Laser) est,ti)
+reageEvento (EventKey (Char '9') Down _ _) (est,ti) = (jogada 2 (Dispara Choque) est,ti)
+reageEvento (EventKey (Char ',') Down _ _) (est,ti) = (jogada 3 (Dispara Canhao) est,ti)
+reageEvento (EventKey (Char '.') Down _ _) (est,ti) = (jogada 3 (Dispara Laser) est,ti)
+reageEvento (EventKey (Char '-') Down _ _) (est,ti) = (jogada 3 (Dispara Choque) est,ti)
+reageEvento _ est = est
+
+
+
+reageTempo :: Float -> DataJogo -> DataJogo
+reageTempo _ (est,ti) = (tick est, ti + 1)
+
+
+direcaoRoda :: Direcao -> Picture -> Picture
+direcaoRoda d p = case d of
+                   C -> p
+                   _ -> direcaoRoda (pred d) (Rotate 90 p)  
+
+
+tankss :: Picture
+tankss = Translate (-8*tm) (23*tm) (Text "TANKS")
+
+tankstitle :: Picture
+tankstitle = Scale (0.5) (0.5) tankss
+
+stats :: Estado -> Picture
+stats est = Pictures [jogador1 est,jogador2 est,jogador3 est,jogador4 est,jogador1L est,jogador2L est,jogador3L est,jogador4L est,
+                 jogador1Q est,jogador2Q est,jogador3Q est,jogador4Q est,tankstitle,j1t,j2t,j3t,j4t]
+
+
+j1t = Translate (17*tm) (11*tm) tankq
+j2t = Translate (17*tm) (-12*tm) tankq1
+j3t = Translate (-23*tm) (11*tm) tankq2
+j4t = Translate (-23*tm) (-12*tm) tankq3
+
+jogador1 est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (70*tm) (65*tm) (Text $ "JOGADOR 1  VIDAS" ++ " " ++ (show (vidasJogador (encontraIndiceLista 0 (jogadoresEstado est)))))
+jogador1L est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (103*tm) (58*tm) (Text $ "LASERS" ++ " " ++ (show $ lasersJogador $ encontraIndiceLista 0 $ jogadoresEstado est))
+jogador1Q est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (98*tm) (51*tm) (Text $ "CHOQUES" ++ " " ++ (show $ choquesJogador $ encontraIndiceLista 0 $ jogadoresEstado est))
+
+jogador2 est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (69*tm) (-51*tm) (Text $ "JOGADOR 2  VIDAS" ++ " " ++ (show (vidasJogador (encontraIndiceLista 1 (jogadoresEstado est)))))
+jogador2L est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (103*tm) (-58*tm) (Text $ "LASERS" ++ " " ++ (show $ lasersJogador $ encontraIndiceLista 1 $ jogadoresEstado est))
+jogador2Q est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (98*tm) (-65*tm) (Text $ "CHOQUES" ++ " " ++ (show $ choquesJogador $ encontraIndiceLista 1 $ jogadoresEstado est))
+
+jogador3 est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-130*tm) (65*tm) (Text $ "JOGADOR 3  VIDAS" ++ " " ++ (show (vidasJogador (encontraIndiceLista 2 (jogadoresEstado est)))))
+jogador3L est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-96*tm) (58*tm) (Text $ "LASERS" ++ " " ++ (show $ lasersJogador $ encontraIndiceLista 2 $ jogadoresEstado est))
+jogador3Q est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-101*tm) (51*tm) (Text $ "CHOQUES" ++ " " ++ (show $ choquesJogador $ encontraIndiceLista 2 $ jogadoresEstado est))
+
+jogador4 est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-130*tm) (-51*tm) (Text $ "JOGADOR 4  VIDAS" ++ " " ++ (show (vidasJogador (encontraIndiceLista 3 (jogadoresEstado est)))))
+jogador4L est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-96*tm) (-58*tm) (Text $ "LASERS" ++ " " ++ (show $ lasersJogador $ encontraIndiceLista 3 $ jogadoresEstado est))
+jogador4Q est = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-101*tm) (-65*tm) (Text $ "CHOQUES" ++ " " ++ (show $ choquesJogador $ encontraIndiceLista 3 $ jogadoresEstado est))
+
+timer ti = Scale (0.5) (0.5) $ Translate 0 (-23*tm) (Text (show ti))

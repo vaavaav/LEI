@@ -1,0 +1,3 @@
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/FT2/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/FT2/cmake-build-debug/CMakeFiles/imc.dir
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/FT2/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,104 @@
+-- | Este módulo define funções comuns da Tarefa 2 do trabalho prático.
+module Tarefa2_2018li1g156 where
+
+import LI11819
+import Tarefa0_2018li1g156
+import Tarefa1_2018li1g156
+
+
+-- * Testes
+
+-- | Testes unitários da Tarefa 2.
+--
+-- Cada teste é um triplo (/identificador do 'Jogador'/,/'Jogada' a efetuar/,/'Estado' anterior/).
+testesT2 :: [(Int,Jogada,Estado)]
+testesT2 = [(3, Movimenta E, Estado (constroi teste2) ljogs1 []), 
+            (1, Movimenta E, Estado (constroi teste2) ljogs2 ldps1),
+            (2, Dispara Choque, Estado (constroi teste2) ljogs1 ldps1),
+            (3, Dispara Laser, Estado (constroi teste2) ljogs1 ldps1),
+            (1, Dispara Choque, Estado (constroi teste2) ljogs1 ldps1),
+            (2, Movimenta C, Estado (constroi teste4) ljogs2 ldps2)]
+
+ljogs1 = [jog1, jog2, jog3, jog4]
+ljogs2 = [jog3, jog4, jog5, jog1]
+
+jog1 = Jogador (1,3) C 3 3 3
+jog2 = Jogador (1,11) B 2 4 0
+jog3 = Jogador (11,1) B 0 2 2
+jog4 = Jogador (8,11) E 1 0 3
+jog5 = Jogador (6,11) D 1 0 3
+
+ldps1 = [dp1, dp2, dp3]
+ldps2 = [dp2, dp1, dp4, dp3]
+
+dp1 = DisparoCanhao 1 (2,11) B
+dp2 = DisparoChoque 2 5 
+dp3 = DisparoLaser 3 (1,3) D
+dp4 = DisparoCanhao 0 (3,5) E
+
+-- * Funções principais da Tarefa 2.
+
+-- | Efetua uma jogada.
+jogada :: Int -- ^ O identificador do 'Jogador' que efetua a jogada.
+       -> Jogada -- ^ A 'Jogada' a efetuar.
+       -> Estado -- ^ O 'Estado' anterior.
+       -> Estado -- ^ O 'Estado' resultante após o jogador efetuar a jogada.
+jogada numJ acao e@(Estado m ljs lds) | vid <= 0 = e 
+                                      | otherwise = case acao of
+                                       Movimenta d | emChoque numJ pos lds ljs || d /= dire
+                                                   -> e {jogadoresEstado = atualizaIndiceLista numJ (jEmCausa {direcaoJogador = d}) ljs}
+                                                   | caminhoLivre (somaVetores pos (direcaoParaVetor dire)) dire (elimIndiceLista numJ ljs) m 
+                                                   -> e {jogadoresEstado = atualizaIndiceLista numJ (jEmCausa {posicaoJogador = somaVetores (direcaoParaVetor dire) pos}) ljs} 
+                                                   | otherwise -> e                                                      
+                                       Dispara arma -> case arma of 
+                                                    Canhao -> e { disparosEstado = (DisparoCanhao {jogadorDisparo = numJ, 
+                                                                                                   posicaoDisparo = somaVetores (direcaoParaVetor dire) pos, 
+                                                                                                   direcaoDisparo = dire}:lds)} 
+                                                    Laser | lsr == 0 -> e
+                                                          | otherwise -> e {jogadoresEstado = atualizaIndiceLista numJ (jEmCausa {lasersJogador = lsr - 1}) ljs, 
+                                                                            disparosEstado = (DisparoLaser {jogadorDisparo = numJ, 
+                                                                                                             posicaoDisparo = somaVetores (direcaoParaVetor dire) pos, 
+                                                                                                             direcaoDisparo = dire}:lds)} 
+                                                    Choque | chq == 0 -> e            
+                                                           | otherwise -> e {jogadoresEstado = atualizaIndiceLista numJ (jEmCausa {choquesJogador = chq - 1}) ljs, 
+                                                                             disparosEstado = (DisparoChoque {jogadorDisparo = numJ, 
+                                                                                                             tempoDisparo = 5}:lds)}  
+                              where jEmCausa@(Jogador pos dire vid lsr chq) = encontraIndiceLista numJ ljs 
+
+elimIndiceLista :: Int -> [a] -> [a]
+elimIndiceLista _ [] = []
+elimIndiceLista n (h:t) | n == 0 = t
+                        | otherwise = h : elimIndiceLista (n-1) t
+
+
+-- | Verifica se um determinado 'Jogador' está afetado pelo por um 'DisparoChoque'.
+
+emChoque :: Int           -- ^ Identificador do 'Jogador'.
+         -> PosicaoGrelha -- ^ 'Posicao' do 'Jogador' em causa.
+         -> [Disparo]     -- ^ Lista de 'Disparo' do 'Estado'.
+         -> [Jogador]     -- ^ Lista de 'Jogador' do 'Estado'.
+         -> Bool   
+emChoque n (x,y) ds js = case ds of 
+                           [] -> False
+                           ((DisparoChoque nJ _):t) -> ((n /= nJ) && abs (x - xD) <= 3 && abs (y - yD) <= 3) || emChoque n (x,y) t js      
+                                   where (xD, yD) = posicaoJogador (encontraIndiceLista nJ js)
+                           (_:t) -> emChoque n (x,y) t js
+
+-- | Verifica se a 'Posicao' que um determinado 'Jogador' pretende movimentar-se está livre.
+
+caminhoLivre :: PosicaoGrelha -- ^ 'Posicao' do 'Jogador' em causa.
+             -> Direcao       -- ^ 'Direcao' do 'Jogador' em causa.
+             -> [Jogador]     -- ^ Lista de 'Jogador' do 'Estado'.
+             -> Mapa          -- ^ 'Mapa' do jogo.
+             -> Bool   
+caminhoLivre (x,y) dire js m = case js of
+                               [] -> encontraPosicaoMatriz bloco1 m == Vazia && encontraPosicaoMatriz bloco2 m == Vazia 
+                                        where [bloco1, bloco2] = map (somaVetores (x,y)) (blocosVet dire)
+                               ((Jogador (x1,y1) _ v _ _):t) -> (v <= 0 || abs (x - x1) > 1 || abs (y - y1) > 1) && caminhoLivre (x,y) dire t m 
+
+                                              
+blocosVet:: Direcao -> [Vetor]
+blocosVet C = [(0,0),(0,1)]
+blocosVet D = [(1,1),(0,1)]
+blocosVet B = [(1,1),(1,0)]
+blocosVet E = [(1,0),(0,0)]

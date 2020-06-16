@@ -1,0 +1,69 @@
+-- | Este módulo define funções comuns da Tarefa 3 do trabalho prático.
+module Tarefa3_2018li1g156 where
+
+import LI11819
+import Tarefa0_2018li1g156
+import Tarefa1_2018li1g156
+import Tarefa2_2018li1g156
+
+-- * Testes
+
+-- | Testes unitários da Tarefa 3.
+--
+-- Cada teste é um 'Estado'.
+testesT3 :: [Estado]
+testesT3 = []
+
+-- * Funções principais da Tarefa 3.
+
+-- | Comprime um 'Estado' para formato textual.
+--
+-- __NB:__ A função 'show' representa um 'Estado' num formato textual facilmente legível mas extenso.
+--
+-- __NB:__ Uma boa solução deve representar o 'Estado' dado no mínimo número de caracteres possível.
+comprime :: Estado -> String
+comprime (Estado m jgs dps) = unwords (abc m) ++ converteListaJogadores jgs ++ converteListaDisparos dps
+
+abc :: Mapa -> [String]
+abc [] = []
+abc m = map converteListaMapa ((take (fst (dimensaoMatriz m) - 2) . (drop 1)) (map (take (snd (dimensaoMatriz m) - 2) . (drop 1))  m))
+
+-- USAR UNWORDS NA FUNCAO ABC
+       
+converteListaMapa :: [Peca] -> String
+converteListaMapa [] = []
+converteListaMapa (h:t) | h == Vazia = '0':converteListaMapa t
+                        | h == Bloco Indestrutivel = '2':converteListaMapa t
+                        | h == Bloco Destrutivel = '1':converteListaMapa t
+
+converteListaJogadores :: [Jogador] -> String
+converteListaJogadores [] = []
+converteListaJogadores (h:t) = hString ++ converteListaJogadores t
+                    where hString =  "J" ++ unwords [show x , show y , show (vidasJogador h) , show (lasersJogador h) , show (choquesJogador h)]
+                          (x,y) = posicaoJogador h 
+
+converteListaDisparos :: [Disparo] -> String
+converteListaDisparos [] = []
+converteListaDisparos (DisparoChoque n ti : t) = hString ++ converteListaDisparos t
+                    where hString = "X" ++ unwords [show n , show ti]
+converteListaDisparos (DisparoLaser a (x,y) c : t) = hString ++ converteListaDisparos t
+                    where hString = "L" ++ unwords [show a , show x , show y , show (dirInt c)]
+converteListaDisparos (DisparoCanhao a (x,y) c :t) = hString ++ converteListaDisparos t
+                    where hString = "C" ++ unwords [show a , show x , show y , show (dirInt c)] 
+
+dirInt :: Direcao -> Int 
+dirInt E = 3
+dirInt x = dirInt (succ x) - 1 
+
+-- | Descomprime um 'Estado' no formato textual utilizado pela função 'comprime'.
+--
+-- __NB:__ A função 'comprime' é válida de for possível recuperar o 'Estado' utilizando a função 'descomprime', i.e.:
+--
+-- prop> descomprime . comprime = id
+--
+-- __NB:__ Esta propriedade é particularmente válida para a solução pré-definida:
+--
+-- prop> read . show = id
+descomprime :: String -> Estado
+descomprime = read
+

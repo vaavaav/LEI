@@ -1,0 +1,139 @@
+-- | Este módulo define funções comuns da Tarefa 5 do trabalho prático.
+module Main where
+import Graphics.Gloss
+import Graphics.Gloss.Interface.Pure.Game
+import LI11819
+import Tarefa0_2018li1g156
+import Tarefa1_2018li1g156
+import Tarefa2_2018li1g156
+import Tarefa4_2018li1g156
+
+-- | Função principal da Tarefa 5.
+--
+-- __NB:__ Esta Tarefa é completamente livre. Deve utilizar a biblioteca <http://hackage.haskell.org/package/gloss gloss> para animar o jogo, e reutilizar __de forma completa__ as funções das tarefas anteriores.
+main :: IO ()
+main = do 
+        play window              -- janela onde irá correr o jogo
+             (greyN 0.5)     -- côr do fundo da janela
+             fr              -- frame rate
+             estadoInicial   -- estado inicial
+             desenhaEstado   -- desenha o estado do jogo
+             reageEvento     -- reage a um evento
+             reageTempo      -- reage ao passar do tempo
+
+tm :: Float
+tm = 25.0
+
+blocoI :: Picture
+blocoI = Color blue bloco
+
+bloco :: Picture
+bloco = Polygon [(0,0),(tm,0),(tm,tm),(0,tm),(0,0)] 
+
+blocoD :: Picture
+blocoD = Color orange bloco
+
+vaz :: Picture
+vaz = Color white (Line [(0,0),(tm,0),(tm,tm),(0,tm),(0,0)])
+
+mapaDesn ::  Mapa -> (Float, Float) -> [Picture]
+mapaDesn [] _ = []
+mapaDesn (h:t) (x,y) = mapaL h (x,y) ++ mapaDesn t (x,y-tm)
+
+mapaL :: [Peca] -> (Float, Float) -> [Picture]
+mapaL [] _ = []
+mapaL (h:t) (x, y) | h == Bloco Indestrutivel = (Translate x y blocoI) : mapaL t (x+tm,y)
+                   | h == Bloco Destrutivel = (Translate x y blocoD) : mapaL t (x+tm,y)
+                   | h == Vazia = (Translate x y vaz) : mapaL t (x+tm,y)
+
+tankq :: Picture
+tankq = Pictures [Color yellow blocoM,Color blue linha]
+
+tankq1 :: Picture
+tankq1 = Pictures [Color red blocoM,Color blue linha]
+
+tankq2 :: Picture 
+tankq2 = Pictures [Color rose blocoM,Color blue linha]
+
+tankq3 :: Picture
+tankq3 = Pictures [Color green blocoM,Color blue linha]
+
+listColJ :: [Picture]
+listColJ = [tankq,tankq1,tankq2,tankq3]
+
+blocoM :: Picture
+blocoM = Polygon [(tm,-tm),(tm,tm),(-tm,tm),(-tm,-tm),(tm,-tm)]
+
+linha :: Picture
+linha = Polygon [(-2,0),(-2,tm-4),(2,tm-4),(2,0)]
+
+tankDesn :: (Float,Float) -> [Jogador] -> [Picture] -> [Picture]
+tankDesn _ [] _ = []
+tankDesn _ _ [] = []
+tankDesn (x,y) (j1:t) (p1:p) = (Translate ((c*tm)+x) (y-(l*tm)) p1) : tankDesn (x,y) t p
+ where (m,n) = posicaoJogador j1
+       (l,c) = (fromIntegral m,fromIntegral n)
+
+tiroCD :: Picture
+tiroCD = Polygon [(0,0),(-3,-4),(-3,-10),(0,-9),(3,-10),(3,-4),(0,0)]
+
+tiroLD :: Picture
+tiroLD = Polygon [(-5,0),(5,0),(5,-tm),(-5,-tm),(-5,0)]
+
+tiroXD :: Picture
+tiroXD = Polygon [(3*tm,-3*tm),(3*tm,3*tm),(-3*tm,3*tm),(-3*tm,-3*tm),(3*tm,-3*tm)]
+
+listaDePictures :: [Picture]
+listaDePictures = [tiroCD,tiroLD]
+
+dispDesn :: (Float,Float) -> [Disparo] -> [Picture] -> [Picture]
+dispDesn _ [] _ = []
+dispDesn _ _ [] = []
+dispDesn (x,y) (d1:t) (p1:p) = case d1 of
+      DisparoCanhao num (m,n) dir -> (Translate ((c*tm)+x) (y-(l*tm)) (Color (encontraIndiceLista num cores) (encontraIndiceLista 0 (p1:p)))) : dispDesn (x,y) t (p1:p)
+              where (l,c) = (fromIntegral m,fromIntegral n)
+      DisparoLaser num (m,n) dir -> (Translate ((c*tm)+x) (y-(l*tm)) (Color (encontraIndiceLista num cores) (encontraIndiceLista 1 (p1:p)))) : dispDesn (x,y) t (p1:p)
+              where (l,c) = (fromIntegral m,fromIntegral n)
+      _ -> dispDesn (x,y) t (p1:p)
+
+dispXDesn :: (Float,Float) -> [Jogador] -> [Disparo] -> Picture -> [Picture]
+dispXDesn _ [] _ _ = []
+dispXDesn _ _ [] _ = []
+dispXDesn (x,y) (j1:j) (d1:d) p = case d1 of
+      DisparoChoque num tp -> (Translate ((c*tm)+x) (y-(l*tm)) (Color (encontraIndiceLista num coresX) p)):dispXDesn (x,y) (j1:j) d p
+             where (m,n) = posicaoJogador (encontraIndiceLista num (j1:j))
+                   (l,c) = (fromIntegral m,fromIntegral n)
+      _ -> dispXDesn (x,y) (j1:j) d p
+
+cores :: [Color]              
+cores = [yellow,red,rose,green]
+
+coresX :: [Color]
+coresX = [makeColorI 255 255 0 50,makeColorI 255 0 0 50,makeColorI 255 51 153 50,makeColorI 0 255 0 50]
+
+dispExp :: [Disparo]
+dispExp = [DisparoCanhao 1 (2,11) B, DisparoChoque 2 5, DisparoLaser 3 (1,3) D , DisparoCanhao 0 (3,5) E]
+
+jogExp2 :: [Jogador]
+jogExp2 = [Jogador (6,9) C 3 3 3,Jogador (1,11) B 2 4 0,Jogador (11,1) B 0 2 2,Jogador (8,11) E 1 0 3]
+
+window :: Display
+window = FullScreen
+
+fr :: Int
+fr = 1
+
+estadoInicial :: Estado
+estadoInicial = Estado (constroi teste4) ([]) ([])
+
+desenhaEstado :: Estado -> Picture
+desenhaEstado est = Pictures [(Pictures (mapaDesn (mapaEstado est) (((-(y/2.0))*tm), ((x/2.0)-1)*tm))), Pictures (tankDesn (((-(y/2.0)+1)*tm), ((x/2.0)-1)*tm) jogExp2 listColJ), Pictures (dispDesn (((-(y/2.0)+1)*tm), ((x/2.0)-1)*tm) dispExp listaDePictures), Pictures (dispXDesn (((((-(y/2.0))*tm))+tm), ((x/2.0)-1)*tm) jogExp2 dispExp tiroXD)]
+ where (a,b) = dimensaoMatriz (mapaEstado est) 
+       (x,y) = (fromIntegral a, fromIntegral b)
+
+
+reageEvento :: Event -> Estado -> Estado
+reageEvento ev est = est
+
+reageTempo :: Float -> Estado -> Estado
+reageTempo t est = est

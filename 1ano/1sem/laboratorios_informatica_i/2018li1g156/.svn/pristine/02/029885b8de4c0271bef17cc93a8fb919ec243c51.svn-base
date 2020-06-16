@@ -1,0 +1,258 @@
+  -- | Este módulo define funções comuns da Tarefa 5 do trabalho prático.
+module Main where
+      
+import Graphics.Gloss
+import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Juicy
+import LI11819
+import Tarefa0_2018li1g156
+import Tarefa1_2018li1g156
+import Tarefa2_2018li1g156
+import Tarefa4_2018li1g156
+
+type Cronometro = Int
+
+type DataJogo = (Estado, Int, Cronometro, [Picture])
+
+-- | Função principal da Tarefa 5.
+--
+-- __NB:__ Esta Tarefa é completamente livre. Deve utilizar a biblioteca <http://hackage.haskell.org/package/gloss gloss> para animar o jogo, e reutilizar __de forma completa__ as funções das tarefas anteriores.
+main :: IO ()
+main = do
+        Just vaz <- loadJuicyPNG "textures/vaz.png"
+        Just bi <- loadJuicyPNG "textures/bi.png"
+        Just bd <- loadJuicyPNG "textures/bd.png"
+        Just j1 <- loadJuicyPNG "textures/j1.png"
+        Just j2 <- loadJuicyPNG "textures/j2.png"
+        Just j3 <- loadJuicyPNG "textures/j3.png"
+        Just j4 <- loadJuicyPNG "textures/j4.png"
+        Just dl1 <- loadJuicyPNG "textures/dl1.png"
+        Just dl2 <- loadJuicyPNG "textures/dl2.png"
+        Just dl3 <- loadJuicyPNG "textures/dl3.png"
+        Just dl4 <- loadJuicyPNG "textures/dl4.png"
+        play window              -- janela onde irá correr o jogo
+             (greyN 0.5)     -- côr do fundo da janela
+             fr              -- frame rate
+             ((encontraIndiceLista 0 estadosIniciais), 0, 0, [vaz,bi,bd,j1,j2,j3,j4,dl1,dl2,dl3,dl4])   -- estado inicial
+             desEstado   -- desenha o estado do jogo
+             reageEvento     -- reage a um evento
+             reageTempo      -- reage ao passar do tempo
+
+cores :: [Color]              
+cores = [yellow,red,rose,green]
+
+coresX :: [Color]
+coresX = [makeColorI 255 255 0 50,makeColorI 255 0 0 50,makeColorI 255 51 153 50,makeColorI 0 255 0 50]
+
+-- | Tipo de janela em que o jogo se vai apresentar.
+window :: Display
+window = FullScreen
+
+-- | Unidade de tempo passado por cada segundo.
+fr :: Int
+fr = 1
+
+-- | Tamanho de cada unidade de medida.
+tm :: Float
+tm = 32.0
+
+tiroCD :: Picture
+tiroCD = Polygon [(0,0),(-3,-4),(-3,-10),(0,-9),(3,-10),(3,-4),(0,0)]
+
+tiroXD :: Picture
+tiroXD = Polygon [(3*tm,-3*tm),(3*tm,3*tm),(-3*tm,3*tm),(-3*tm,-3*tm),(3*tm,-3*tm)]
+
+-- | Estados que se exibem quando iniciado o jogo.
+estadosIniciais :: [Estado]
+estadosIniciais = [(Estado (constroi teste2) ljogs1 []), (Estado (constroi map1) jg1 [])]
+
+
+map1 = [Move C,Move C,Move D,Desenha,Move D,Move D,Move D,Move D,Desenha,Roda,Move E,Move E,Move B,Move B,Move B,Move B,Move B,Move E,MudaTetromino,Move B,Desenha,Move B,Move B,
+        Move D,Move D,Move D,Roda,Move C,Move C,Move D,Move D,Move E,Move C,Move B,Desenha]
+
+jg1 = [(Jogador (1,1) B 3 3 3), (Jogador (1,4) B 3 3 3), (Jogador (1,8) B 3 3 3), (Jogador (8,9) B 3 3 3)]
+
+-- | Dado um 'DataJogo' produz uma 'Picture' respetiva ao 'Estado' em causa.
+desEstado :: DataJogo -- ^ 'DataJogo' em questão. 
+          -> Picture -- ^ A representação gráfica resultante.
+desEstado d@(e@(Estado m js ds),_,ti,l) = Pictures [Translate (-y*tm) (x*tm) (Pictures [Pictures (desMapa m (tm/2, -tm/2) l), 
+                                        Pictures (desJogs js 0 l), 
+                                        Pictures (desCanhoes ds), 
+                                        Pictures (desLasers m ds l), 
+                                        Pictures (desChoques js ds)]),
+                                        stats d, timer ti]
+ where (x,y) = let (a,b) = dimensaoMatriz m in (fromIntegral a / 2.0, fromIntegral b / 2.0) 
+
+
+-- | Dado um 'Mapa' e uma posição ('Float','Float'), produz uma lista 'Picture', correspondente às representações gráficas de todas as 'Peca's.
+desMapa :: Mapa -- ^ O mapa do 'Estado' em causa.
+        -> (Float, Float) -- ^ A posição onde a 'Picture' se posicionará.
+        -> [Picture] -- ^ A lista de 'Picture' associada às texturas.
+        -> [Picture] -- ^ A lista de 'Picture' com as respetivas 'Peca's bem distintas.
+desMapa [] _ _ = []
+desMapa (h:t) (x,y) l = mapaL h (x,y) l ++ desMapa t (x,y-tm) l
+               where mapaL [] _ _ = []
+                     mapaL (h:t) (x,y) l = case h of 
+                             Bloco Indestrutivel -> (Translate x y (encontraIndiceLista 1 l)) : mapaL t (x+tm,y) l
+                             Bloco Destrutivel -> (Translate x y (encontraIndiceLista 2 l)) : mapaL t (x+tm,y) l
+                             Vazia -> (Translate x y (encontraIndiceLista 0 l)) : mapaL t (x+tm,y) l
+
+-- | Dado uma lista de 'Jogador'es e um 'Int', identificador do jogador, produz uma lista de 'Picture', correspondente às representações gráficas de todos os 'Jogador'es.
+desJogs :: [Jogador] -- ^ A lista de 'Jogador'es do 'Estado' em causa.
+        -> Int -- ^ O identificador do Jogador
+        -> [Picture] -- ^ A lista de 'Picture's associadas às texturas.
+        -> [Picture] -- ^ A lista de 'Picture' com os respetivos 'Jogador'es bem distintos.
+desJogs [] _ _ = []
+desJogs (j@(Jogador (m,n) d v _ _):js) q ls | v <= 0 = desJogs js (q+1) ls
+                                           | otherwise = (Translate ((c+1)*tm) ((-l-1)*tm) (direcaoRoda d p)): desJogs js (q+1) ls
+                                     where (l,c) = (fromIntegral m,fromIntegral n)
+                                           p = encontraIndiceLista (q+3) ls
+
+-- | Dado uma lista de 'Disparo's, produz uma lista de 'Picture', correspondente às representações gráficas de todos os 'DisparoCanhao'.
+desCanhoes :: [Disparo] -- ^ A lista de 'Disparo's do 'Estado' em causa.
+           -> [Picture] -- ^ A lista de 'Picture' com os respetivos 'DisparoCanhao' distintos.
+desCanhoes [] = []
+desCanhoes (d:ds) = case d of
+      DisparoCanhao num (m,n) dir -> (Translate ((c+1)*tm) ((-l-1)*tm) ((Color (encontraIndiceLista num cores) . direcaoRoda dir) tiroCD)) : desCanhoes ds
+        where (l,c) = (fromIntegral m,fromIntegral n)
+      _ -> desCanhoes ds
+
+-- | Dado um 'Mapa' e uma lista de 'Disparo's, produz uma lista de 'Pictures', correspondente às representações gráficas de todos os 'DisparoLaser's.
+desLasers :: Mapa -- ^ O 'Mapa' do 'Estado' em causa.
+          -> [Disparo] -- ^ A lista de 'Disparo's do 'Estado' em causa.
+          -> [Picture] -- ^ A lista de 'Picture's associada às texturas do jogo.
+          -> [Picture] -- ^ A lista de 'Picture' com os respetivos 'DisparoLaser' distintos.
+desLasers [] _ _ = []
+desLasers _ [] _ = []
+desLasers m (d:ds) ls = case d of 
+      DisparoLaser n (l',c') dir -> (Translate ((c+1)*tm) ((-l-1)*tm) $ (Color (encontraIndiceLista n cores) . direcaoRoda dir) (Pictures (laserPic (alcanceLaser d m) (encontraIndiceLista (n+7) ls)))) : desLasers m ds ls          
+            where (l,c) = let (a,b) = subtraiVetores (l',c') (direcaoParaVetor dir) in (fromIntegral a, fromIntegral b) 
+      _ -> desLasers m ds ls
+
+-- | Dado um 'Float', devolve uma lista de 'Picture', correspondente à representação gráfica de um 'DisparoLaser'.
+laserPic :: Float -- ^ O alcance do 'DisparoLaser' em questão.
+         -> Picture -- ^ A textura do laser correspondente.
+         -> [Picture] -- ^ A lista de 'Picture' resultante, com o 'DisparoLaser' fragmentado.
+laserPic x p | x == 0 = []
+             | otherwise = (Translate 0 (x*tm) p): laserPic (x-1) p
+        
+-- | Dado um 'Disparo', um 'Mapa', produz o alcance de um 'DisparoLaser'.        
+alcanceLaser :: Disparo -- ^ O 'DisparoLaser' em questão.
+             -> Mapa -- ^ O 'Mapa' do 'Estado' em causa.
+             -> Float -- ^ O alcance do 'DisparoLaser'.
+alcanceLaser d@(DisparoLaser n pos dire) m | stop = 0
+                                           | otherwise =  1 + alcanceLaser d{posicaoDisparo = somaVetores pos $ direcaoParaVetor dire} m
+  where [bloco1, bloco2] = map (somaVetores pos) (blocosVet dire)
+        stop = encontraPosicaoMatriz bloco1 m == Bloco Indestrutivel || encontraPosicaoMatriz bloco2 m == Bloco Indestrutivel
+
+-- | Dado uma lista de 'Jogador'es, uma lista de 'Disparo's, produz uma lista de 'Picture', correpondente às representações gráficas de todos os 'DisparoChoque's.
+desChoques :: [Jogador] -- ^ A lista de 'Jogador'es do 'Estado' em causa.
+           -> [Disparo] -- ^ A lista de 'Disparo's do 'Estado' em causa.
+           -> [Picture] -- ^ A lista de 'Picture' resultante, com os respetivos 'DisparoChoque's distintos.
+desChoques _ [] = []
+desChoques js (d:ds) = case d of
+      DisparoChoque num _ -> (Translate ((c+1)*tm) ((-l-1)*tm) (Color (encontraIndiceLista num coresX) tiroXD)) : desChoques js ds
+             where (m,n) = posicaoJogador (encontraIndiceLista num js)
+                   (l,c) = (fromIntegral m, fromIntegral n)
+      _ -> desChoques js ds
+
+-- | Dado um 'Event' e um 'DataJogo', produz o resultado desse 'Event' efetuando mudanças no 'Estado' incial.
+reageEvento :: Event -- ^ O 'Event' a considerar.
+            -> DataJogo -- ^ O 'DataJogo' em questão.
+            -> DataJogo -- ^ O 'DataJogo' resultante de premir uma certa tecla.
+reageEvento (EventKey (Char 'w') Down _ _) (e,n,ti,p) = ((jogada 0 (Movimenta C) e),n,ti,p)
+reageEvento (EventKey (Char 's') Down _ _) (e,n,ti,p) = ((jogada 0 (Movimenta B) e),n,ti,p)
+reageEvento (EventKey (Char 'd') Down _ _) (e,n,ti,p) = ((jogada 0 (Movimenta D) e),n,ti,p)
+reageEvento (EventKey (Char 'a') Down _ _) (e,n,ti,p) = ((jogada 0 (Movimenta E) e),n,ti,p)
+reageEvento (EventKey (Char 't') Down _ _) (e,n,ti,p) = ((jogada 1 (Movimenta C) e),n,ti,p)
+reageEvento (EventKey (Char 'h') Down _ _) (e,n,ti,p) = ((jogada 1 (Movimenta D) e),n,ti,p)
+reageEvento (EventKey (Char 'g') Down _ _) (e,n,ti,p) = ((jogada 1 (Movimenta B) e),n,ti,p)
+reageEvento (EventKey (Char 'f') Down _ _) (e,n,ti,p) = ((jogada 1 (Movimenta E) e),n,ti,p)
+reageEvento (EventKey (Char 'i') Down _ _) (e,n,ti,p) = ((jogada 2 (Movimenta C) e),n,ti,p)
+reageEvento (EventKey (Char 'l') Down _ _) (e,n,ti,p) = ((jogada 2 (Movimenta D) e),n,ti,p)
+reageEvento (EventKey (Char 'k') Down _ _) (e,n,ti,p) = ((jogada 2 (Movimenta B) e),n,ti,p)
+reageEvento (EventKey (Char 'j') Down _ _) (e,n,ti,p) = ((jogada 2 (Movimenta E) e),n,ti,p)
+reageEvento (EventKey (SpecialKey KeyUp) Down _ _) (e,n,ti,p) = ((jogada 3 (Movimenta C) e),n,ti,p)
+reageEvento (EventKey (SpecialKey KeyRight) Down _ _) (e,n,ti,p) = ((jogada 3 (Movimenta D) e),n,ti,p)
+reageEvento (EventKey (SpecialKey KeyDown) Down _ _) (e,n,ti,p) = ((jogada 3 (Movimenta B) e),n,ti,p)
+reageEvento (EventKey (SpecialKey KeyLeft) Down _ _) (e,n,ti,p) = ((jogada 3 (Movimenta E) e),n,ti,p) 
+reageEvento (EventKey (Char '1') Down _ _) (e,n,ti,p) = ((jogada 0 (Dispara Canhao) e),n,ti,p)
+reageEvento (EventKey (Char '2') Down _ _) (e,n,ti,p) = ((jogada 0 (Dispara Laser) e),n,ti,p)
+reageEvento (EventKey (Char '3') Down _ _) (e,n,ti,p) = ((jogada 0 (Dispara Choque) e),n,ti,p)
+reageEvento (EventKey (Char '4') Down _ _) (e,n,ti,p) = ((jogada 1 (Dispara Canhao) e),n,ti,p)
+reageEvento (EventKey (Char '5') Down _ _) (e,n,ti,p) = ((jogada 1 (Dispara Laser) e),n,ti,p)
+reageEvento (EventKey (Char '6') Down _ _) (e,n,ti,p) = ((jogada 1 (Dispara Choque) e),n,ti,p)
+reageEvento (EventKey (Char '7') Down _ _) (e,n,ti,p) = ((jogada 2 (Dispara Canhao) e),n,ti,p)
+reageEvento (EventKey (Char '8') Down _ _) (e,n,ti,p) = ((jogada 2 (Dispara Laser) e),n,ti,p)
+reageEvento (EventKey (Char '9') Down _ _) (e,n,ti,p) = ((jogada 2 (Dispara Choque) e),n,ti,p)
+reageEvento (EventKey (Char ',') Down _ _) (e,n,ti,p) = ((jogada 3 (Dispara Canhao) e),n,ti,p)
+reageEvento (EventKey (Char '.') Down _ _) (e,n,ti,p) = ((jogada 3 (Dispara Laser) e),n,ti,p)
+reageEvento (EventKey (Char '-') Down _ _) (e,n,ti,p) = ((jogada 3 (Dispara Choque) e),n,ti,p)
+reageEvento (EventKey (SpecialKey KeySpace) Down _ _) (_,n,_,p) | (n+1) == length estadosIniciais = (head estadosIniciais, 0, 0,p)
+                                                              | otherwise = (encontraIndiceLista (n+1) estadosIniciais, (n+1), 0,p)
+reageEvento (EventKey (SpecialKey KeyEnter) Down _ _) (e,n,a,b) = (encontraIndiceLista n estadosIniciais, n,a,b) 
+reageEvento _ d = d
+
+-- | Dado um 'Float' e um 'DataJogo', efetua a passagem do tempo no 'Cronometro', produzindo assim um novo 'DataJogo'.
+reageTempo :: Float -- ^    'Float' desejado
+           -> DataJogo -- ^ 'DataJogo' inicial
+           -> DataJogo -- ^ 'DataJogo' resultante
+reageTempo _ (e,n,ti,p) = (tick e, n,ti + 1,p)
+
+-- | Dada uma 'Direcao' e uma 'Picture', produz a 'Picture' com a rotação associada à 'Direcao'.
+direcaoRoda :: Direcao -- ^ A 'Direcao' em questão.
+            -> Picture -- ^ A 'Picture' inicial.
+            -> Picture -- ^ A 'Picture' obtida.
+direcaoRoda d p = case d of
+                   C -> p
+                   _ -> direcaoRoda (pred d) (Rotate 90 p)  
+
+-- | Criação e reposicionamento do nome do jogo (TANKS).
+
+tankstitle :: Picture
+tankstitle = Scale (0.5) (0.5) tankss
+ where tankss = Translate (-7*tm) (22*tm) (Text "TANKS")
+
+-- | Conjunto de 'Picture' que exibem as estatísticas do jogo.
+
+stats :: DataJogo -> Picture
+stats est = Pictures [jogador1 est,jogador2 est,jogador3 est,jogador4 est,jogador1L est,jogador2L est,jogador3L est,jogador4L est,
+                 jogador1Q est,jogador2Q est,jogador3Q est,jogador4Q est,tankstitle,j1t est,j2t est,j3t est,j4t est]
+
+-- | Imagem que identifica cada jogador
+
+j1t (_,_,_,d) = Translate (20*tm) (10*tm) (encontraIndiceLista 3 d)
+j2t (_,_,_,d) = Translate (20*tm) (-11*tm) (encontraIndiceLista 4 d)
+j3t (_,_,_,d) = Translate (-14*tm) (10*tm) (encontraIndiceLista 5 d)
+j4t (_,_,_,d) = Translate (-14*tm) (-11*tm) (encontraIndiceLista 6 d)
+
+-- | Conjunto de comandos que codificam a posição e descrição das propriedades de cada 'Jogador'
+
+jogador1 (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (43*tm) (46*tm) (Text $ "JOGADOR 1  VIDAS" ++ " " ++ (show (vidasJogador (encontraIndiceLista 0 (jogadoresEstado est)))))
+jogador1L (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (43*tm) (40*tm) (Text $ "LASERS" ++ " " ++ (show $ lasersJogador $ encontraIndiceLista 0 $ jogadoresEstado est))
+jogador1Q (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (43*tm) (34*tm) (Text $ "CHOQUES" ++ " " ++ (show $ choquesJogador $ encontraIndiceLista 0 $ jogadoresEstado est))
+jogador2 (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (43*tm) (-34*tm) (Text $ "JOGADOR 2  VIDAS" ++ " " ++ (show (vidasJogador (encontraIndiceLista 1 (jogadoresEstado est)))))
+jogador2L (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (43*tm) (-40*tm) (Text $ "LASERS" ++ " " ++ (show $ lasersJogador $ encontraIndiceLista 1 $ jogadoresEstado est))
+jogador2Q (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (43*tm) (-46*tm) (Text $ "CHOQUES" ++ " " ++ (show $ choquesJogador $ encontraIndiceLista 1 $ jogadoresEstado est))
+jogador3 (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-90*tm) (46*tm) (Text $ "JOGADOR 3  VIDAS" ++ " " ++ (show (vidasJogador (encontraIndiceLista 2 (jogadoresEstado est)))))
+jogador3L (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-90*tm) (40*tm) (Text $ "LASERS" ++ " " ++ (show $ lasersJogador $ encontraIndiceLista 2 $ jogadoresEstado est))
+jogador3Q (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-90*tm) (34*tm) (Text $ "CHOQUES" ++ " " ++ (show $ choquesJogador $ encontraIndiceLista 2 $ jogadoresEstado est))
+jogador4 (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-90*tm) (-34*tm) (Text $ "JOGADOR 4  VIDAS" ++ " " ++ (show (vidasJogador (encontraIndiceLista 3 (jogadoresEstado est)))))
+jogador4L (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-90*tm) (-40*tm) (Text $ "LASERS" ++ " " ++ (show $ lasersJogador $ encontraIndiceLista 3 $ jogadoresEstado est))
+jogador4Q (est,_,_,_) = Scale (0.2*tm/25) (0.2*tm/25) $ Translate (-90*tm) (-46*tm) (Text $ "CHOQUES" ++ " " ++ (show $ choquesJogador $ encontraIndiceLista 3 $ jogadoresEstado est))
+
+-- | Ajuste da posição e dimensao do contador de tempo de jogo.
+
+timer ti = Scale (0.5) (0.5) $ Translate 0 (-32*tm) (Text (show ti))
+
+-- | A representação gráfica do jogo é um dos maiores focos atuais pelas empresas produtoras de jogos. Alguns jogos já antigos estão, agora, a ser trabalhados na sua componente gráfica sendo estes uma versão “remasterizada”. Não esquecendo nunca que conteúdo do jogo tem uma importância tão grande ou maior que a sua representação, uma vez que esta pode ser omitida e a primeira não.
+-- O objetivo da tarefa 5 era representar visualmente o jogo criado ao longo das outras tarefas, sendo este interativo, pois em conjunto com teclas específicas era possível passar de um ‘Estado’ para outro ‘Estado’, isto é, seria possível mover-se, disparar e até morrer (desparecer graficamente do jogo). 
+-- Primeiramente, foram definidas representações visuais de cada elemento essencial do jogo numa forma muito simplista, constituídas com linhas e/ou polígonos de uma só cor (estas são do tipo ‘Picture’).
+-- A seguir, trabalhamos em cada parte a ser desenvolvida na representação do ‘Estado’. O processo de representação é efetuado pela função ‘desEstado’, em conjunto com outras funções, cada uma trabalhando com uma parte diferente do ‘Estado’:
+-- ‘mapaEstado’: Através da função ‘desMapa’ e, utilizando as ‘Picture’ já definidas ‘blocoI’, ‘blocoD’ e ‘vaz’, vai-se sucessivamente juntando todas as ‘Pictures’ nas posições corretas (para isso soma-se o tamanho definido ‘tm’ a cada posição anterior) até obter um ‘Mapa’ visual e centrado.
+-- ‘jogadoresEstado’: O processo da função ‘desJogs’ é bastante idêntico ao anterior, com a particularidade de termos em atenção dois fatores: a ‘direcaoJogador’ e as ‘vidasJogador’, caso o jogador não tenha vidas, i.e., vidasJogador = 0, então este(s) ‘Jogador’ não se representa(m).
+-- ‘disparosEstado’: Cada ‘Disparo’ diferente é tratado por uma função criada especificamente para esse tipo, ‘desCanhoes’, ‘desLasers’ e ‘desChoques’, que tal como o nome indica, trabalham á volta de ‘DisparoCanhao’, ‘DisparoLaser’ e ‘DisparoChoque’, numa forma idêntica à função anterior. No caso do ‘DisparoLaser’, achou-se mais apropriado primeiro calcular o alcance do laser, através da função ‘alcanceLaser’ e determinar logo o laser completo ‘Picture’, direcionando-o depois corretamente através da função ‘direcaoRoda’ (uma vez que este fica virado para cima por definição).
+-- OBS: Inicialmente, a cada uma das funções auxiliares da função ‘desEstado’ eram dadas a “origem” do ‘Mapa’ gráfico quando centrado no ecrã. De modo a poupar trabalho e simplificar tanto a leitura como o código em si, o processo passou a ser antes o de desenhar o ‘Estado’ completo e só no fim fazer a translação do mesmo para o centro do ecrã.
+-- Na função ‘reageEvento’ trabalhamos a parte interativa do jogo, utilizando funções já definidas na tarefa 2, definindo casos específicos para cada tecla associada a um certo ‘Jogador’.
+-- Finalmente, na função ‘reageTempo’ através de funções já definidas na tarefa 4, o “tempo” avança com o uso da função ‘tick’. E todos os processos voltam-se a repetir até que o programa seja encerrado.
+-- Esta tarefa terá sido talvez uma das mais complicadas, tanto em termos de organização como de compreensão, já que foi necessário perceber não só a forma como o Gloss funciona, como a sua sintaxe. No entanto, terá sido talvez a tarefa que mais trabalho em equipa teve, pois haviam muitos aspetos a ser trabalhados (tanto os descritos em cima, como outros mais pormenorizados e mesquinhos) e no nosso ponto de vista, embora tenha sido penoso e esgotante psicologicamente, foi uma das que mais prazer deu em concluir (a base e não jogo completo).

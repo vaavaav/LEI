@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/FT2/indicadores.h
+
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/FT2/main.c
+stdio.h
+-
+indicadores.h
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/FT2/indicadores.h
+

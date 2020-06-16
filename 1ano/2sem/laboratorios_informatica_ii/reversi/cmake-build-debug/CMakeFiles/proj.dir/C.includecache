@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/reversi/bot.c
+stdio.h
+-
+estado.h
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/reversi/estado.h
+stdlib.h
+-
+math.h
+-
+
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/reversi/estado.h
+

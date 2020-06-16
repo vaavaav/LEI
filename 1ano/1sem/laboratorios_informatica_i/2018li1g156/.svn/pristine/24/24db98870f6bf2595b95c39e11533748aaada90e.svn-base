@@ -1,0 +1,66 @@
+-- | Este módulo define funções comuns da Tarefa 2 do trabalho prático.
+module Tarefa2_2018li1g156 where
+
+import LI11819
+
+import Tarefa0_2018li1g156
+
+import Tarefa1_2018li1g156
+
+-- * Testes
+
+-- | Testes unitários da Tarefa 2.
+--
+-- Cada teste é um triplo (/identificador do 'Jogador'/,/'Jogada' a efetuar/,/'Estado' anterior/).
+testesT2 :: [(Int,Jogada,Estado)]
+testesT2 = []
+
+-- * Funções principais da Tarefa 2.
+
+-- | Efetua uma jogada.
+jogada :: Int -- ^ O identificador do 'Jogador' que efetua a jogada.
+       -> Jogada -- ^ A 'Jogada' a efetuar.
+       -> Estado -- ^ O 'Estado' anterior.
+       -> Estado -- ^ O 'Estado' resultante após o jogador efetuar a jogada.
+
+jogada = undefined
+
+
+
+dispararCanhao :: Jogador -> Int -> Disparo
+dispararCanhao jgr a = DisparoCanhao {jogadorDisparo = a,posicaoDisparo = (aux (direcaoJogador jgr) (posicaoJogador jgr)),direcaoDisparo = direcaoJogador jgr} 
+
+aux :: Direcao -> Posicao -> PosicaoGrelha 
+aux a (x,y) | a == C = (x-1,y)
+            | a == D = (x,y+1)
+            | a == B = (x+1,y)
+            | a == E = (x,y-1)
+
+podeDispararLaser :: Jogador -> Jogador
+podeDispararLaser jgr | lasersJogador jgr == 0 = jgr
+                      | otherwise = jgr {lasersJogador = (lasersJogador jgr)-1}
+
+
+dispararLaser :: Jogador -> Int -> Disparo
+dispararLaser jgr a = DisparoLaser {jogadorDisparo = a,posicaoDisparo = (aux (direcaoJogador jgr) (posicaoJogador jgr)),direcaoDisparo = direcaoJogador jgr} 
+
+dispararChoque :: Jogador -> Int -> Disparo
+dispararChoque jgr a = DisparoChoque {jogadorDisparo = a,tempoDisparo = 5}
+
+choqueImpede :: Posicao -> Bool
+choqueImpede (x,y) | (x <= 3 && y <= 3) && (x >= 2 && y >= 2) = True
+                   | otherwise = False
+
+podeDispararChoque :: Jogador -> Jogador 
+podeDispararChoque jgr | choquesJogador jgr == 0 = jgr
+                       | otherwise = jgr {choquesJogador = (choquesJogador jgr)-1}
+
+
+
+
+
+
+
+
+
+

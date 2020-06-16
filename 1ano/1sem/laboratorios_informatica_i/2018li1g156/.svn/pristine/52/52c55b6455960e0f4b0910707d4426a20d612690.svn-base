@@ -1,0 +1,103 @@
+-- | Este módulo define funções comuns da Tarefa 6 do trabalho prático.
+module Tarefa6_2018li1g156 where
+
+import LI11819
+import Tarefa0_2018li1g156
+import Tarefa1_2018li1g156
+import Tarefa2_2018li1g156
+import Tarefa4_2018li1g156
+
+-- * Funções principais da Tarefa 6.
+
+-- | Define um ro'bot' capaz de jogar autonomamente o jogo.
+bot :: Int          -- ^ O identificador do 'Jogador' associado ao ro'bot'.
+    -> Estado       -- ^ O 'Estado' para o qual o ro'bot' deve tomar uma decisão.
+    -> Maybe Jogada -- ^ Uma possível 'Jogada' a efetuar pelo ro'bot'.
+bot n e@(Estado m js ds) | elem True (naoMata ds (encontraIndiceLista n js)) = Nothing 
+                         | caminhoLivre (somaVetores p (direcaoParaVetor D)) D (elimIndiceLista n js) m  && elem True ((ifTirosX ds (encontraIndiceLista n js))) = Just (Movimenta D)
+                         | caminhoLivre (somaVetores p (direcaoParaVetor E)) E (elimIndiceLista n js) m  && elem True ((ifTirosX ds (encontraIndiceLista n js))) = Just (Movimenta E)
+                         | caminhoLivre (somaVetores p (direcaoParaVetor C)) C (elimIndiceLista n js) m  && elem True ((ifTirosY ds (encontraIndiceLista n js))) = Just (Movimenta C)
+                         | caminhoLivre (somaVetores p (direcaoParaVetor B)) B (elimIndiceLista n js) m  && elem True ((ifTirosY ds (encontraIndiceLista n js))) = Just (Movimenta B)
+                         | otherwise = maybeMove (ordemDir d 4) n e
+              where jEmCausa@(Jogador p d v l c) = encontraIndiceLista n js 
+                    
+
+ordemDir :: Direcao -> Int -> [Direcao]
+ordemDir d n | n == 0 = [] 
+             | otherwise = case d of   
+                      E -> E : ordemDir C (n-1) 
+                      _ -> d : ordemDir (succ d) (n-1) 
+
+maybeMove :: [Direcao] -> Int -> Estado -> Maybe Jogada
+maybeMove [] _ _ = Nothing
+maybeMove (h:t) n e@(Estado m js ds) | e' == jogada n (Movimenta h) e' = maybeMove t n e
+                              | otherwise = Just (Movimenta h)                             
+                     where e' = e{jogadoresEstado = atualizaIndiceLista n jEmCausa{direcaoJogador = h} js}
+                           jEmCausa@(Jogador p d v l c) = encontraIndiceLista n js 
+                                          
+ifTirosX :: [Disparo] -> Jogador -> [Bool]
+ifTirosX [] j = [False]
+ifTirosX (h:t) j@(Jogador (x,y) dir v l c) = case h of
+    DisparoChoque n tick -> ifTirosX t j
+    _ -> (((x < z) && (y == w) && (dire == C)) || ((x < z) && (y == w+1) && (dire == C)) || ((x < z) && (y == w-1) && (dire == C)) 
+         || ((x > z) && (y == w) && (dire == B)) || ((x > z) && (y == w+1) && (dire == B)) || ((x > z) && (y == w-1) && (dire == B))) : ifTirosX t j
+        where (z,w) = posicaoDisparo h
+              dire = direcaoDisparo h
+
+ifTirosY :: [Disparo] -> Jogador -> [Bool]
+ifTirosY [] j = [False]
+ifTirosY (h:t) j@(Jogador (x,y) dir v l c) = case h of
+    DisparoChoque n tick -> ifTirosY t j
+    _ -> (((x == z) && (y < w) && (dire == E)) || ((x == z+1) && (y < w) && (dire == E)) || ((x == z-1) && (y < w) && (dire == E)) 
+         || ((x == z) && (y > w) && (dire == D)) || ((x == z+1) && (y > w) && (dire == D)) || ((x == z-1) && (y > w) && (dire == D))) : ifTirosY t j
+        where (z,w) = posicaoDisparo h
+              dire = direcaoDisparo h
+
+naoMata :: [Disparo] -> Jogador -> [Bool]
+naoMata [] j = [False]
+naoMata (DisparoChoque n tick : t) j = naoMata t j
+naoMata (DisparoCanhao n (z,w) dire : t) j@(Jogador (x,y) d v l c) = (((x == z+2) && (y > w) && (abs (y - w) <= 2) && (dire == D))
+                                                                    || ((x == z+2) && (y == w)) 
+                                                                    || ((x == z-2) && (y == w)) 
+                                                                    || ((x == z+2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                    || ((x == z-2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                    || ((x == z-2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                    || ((x < z) && (y == w+2) && (abs (x - z) <= 2) && (dire == C))
+                                                                    || ((x == z) && (y == w+2)) 
+                                                                    || ((x == z) && (y == w-2)) 
+                                                                    || ((x < z) && (y == w-2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                    || ((x > z) && (y == w+2) && (abs (x - z) <= 2) && (dire == B)) 
+                                                                    || ((x > z) && (y == w-2) && (abs (x - z) <= 2) && (dire == B))) : naoMata t j
+naoMata (DisparoLaser n (z,w) dire : t) j@(Jogador (x,y) d v l c) = (((x == z+2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                   || ((x == z+2) && (y < w) && (abs (y - w) <= 2) && (dire == E))
+                                                                   || ((x == z+2) && (y == w)) 
+                                                                   || ((x == z-2) && (y == w)) 
+                                                                   || ((x == z-2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                   || ((x == z-2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                   || ((x < z) && (y == w+2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                   || ((x == z) && (y == w+2)) 
+                                                                   || ((x == z) && (y == w-2)) 
+                                                                   || ((x < z) && (y == w-2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                   || ((x > z) && (y == w+2) && (abs (x - z) <= 2) && (dire == B)) 
+                                                                   || ((x > z) && (y == w-2) && (abs (x - z) <= 2) && (dire == B))) : naoMata t j 
+
+
+
+                                                                    
+                                                                    
+{-naoMata (DisparoCanhao n (z,w) dire : t) j@(Jogador (x,y) d v l c) = (((x == z+2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                    || ((x == z+2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                    || ((x == z-2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                    || ((x == z-2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                    || ((x < z) && (y == w+2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                    || ((x < z) && (y == w-2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                    || ((x > z) && (y == w+2) && (abs (x - z) <= 2) && (dire == B)) 
+                                                                    || ((x > z) && (y == w-2) && (abs (x - z) <= 2) && (dire == B))) : naoMata t j
+naoMata (DisparoLaser n (z,w) dire : t) j@(Jogador (x,y) d v l c) = (((x == z+2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                   || ((x == z+2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                   || ((x == z-2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                   || ((x == z-2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                   || ((x < z) && (y == w+2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                   || ((x < z) && (y == w-2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                   || ((x > z) && (y == w+2) && (abs (x - z) <= 2) && (dire == B)) 
+                                                                   || ((x > z) && (y == w-2) && (abs (x - z) <= 2) && (dire == B))) : naoMata t j -}

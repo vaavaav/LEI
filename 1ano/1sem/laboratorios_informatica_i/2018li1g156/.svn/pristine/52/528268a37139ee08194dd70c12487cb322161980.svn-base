@@ -1,0 +1,111 @@
+-- | Este módulo define funções comuns da Tarefa 2 do trabalho prático.
+module Tarefa2_2018li1g156 where
+
+import LI11819
+import Tarefa0_2018li1g156
+import Tarefa1_2018li1g156
+
+
+-- * Testes
+
+-- | Testes unitários da Tarefa 2.
+--
+-- Cada teste é um triplo (/identificador do 'Jogador'/,/'Jogada' a efetuar/,/'Estado' anterior/).
+testesT2 :: [(Int,Jogada,Estado)]
+testesT2 = [(3, Movimenta E, Estado (constroi teste2) ljogs1 []), 
+            (1, Movimenta E, Estado (constroi teste2) ljogs2 ldps),
+            (2, Dispara Choque, Estado (constroi teste2) ljogs1 ldps),
+            (3, Dispara Laser, Estado (constroi teste2) ljogs1 ldps),
+            (1, Dispara Choque, Estado (constroi teste2) ljogs1 ldps)]
+
+
+ljogs1 = [jog1, jog2, jog3, jog4]
+ljogs2 = [jog3, jog4, jog5, jog1]
+
+jog1 = Jogador (1,3) C 3 3 3
+jog2 = Jogador (1,11) B 2 4 0
+jog3 = Jogador (11,1) B 0 2 2
+jog4 = Jogador (8,11) E 1 0 3
+jog5 = Jogador (6,11) D 1 0 3
+
+ldps = [dp1, dp2, dp3]
+dp1 = DisparoCanhao 1 (2,11) B
+dp2 = DisparoChoque 2 5 
+dp3 = DisparoLaser 3 (1,3) D
+
+-- * Funções principais da Tarefa 2.
+
+-- | Efetua uma jogada.
+jogada :: Int -- ^ O identificador do 'Jogador' que efetua a jogada.
+       -> Jogada -- ^ A 'Jogada' a efetuar.
+       -> Estado -- ^ O 'Estado' anterior.
+       -> Estado -- ^ O 'Estado' resultante após o jogador efetuar a jogada.
+
+
+jogada numJogador (Movimenta dire) estado@Estado {mapaEstado = m, jogadoresEstado = listaJogs, disparosEstado = listaDips} | zeroVidas jogadorEmCausa = estado
+                                          | emChoque numJogador (x,y) listaDips listaJogs || dire /= direcaoJogador jogadorEmCausa 
+                                          = estado {jogadoresEstado = atualizaIndiceLista numJogador jogadorNovaDire listaJogs}
+                                          | caminhoLivre (x + vX, y + vY) dire listaSemNumJog m 
+                                          = estado { jogadoresEstado = atualizaIndiceLista numJogador jogadorNovaPos listaJogs} 
+                                          | otherwise = estado
+                                    where (x, y) = posicaoJogador jogadorEmCausa
+                                          (vX, vY) = direcaoParaVetor dire
+                                          jogadorEmCausa = encontraIndiceLista numJogador listaJogs
+                                          jogadorNovaDire = jogadorEmCausa {direcaoJogador = dire}
+                                          jogadorNovaPos = jogadorEmCausa {posicaoJogador = (x + vX, y + vY)}
+                                          listaSemNumJog = retiraIndiceLista numJogador listaJogs
+
+jogada numJogador (Dispara arma) estado | zeroVidas jogadorEmCausa || zeroBalas jogadorEmCausa arma = estado
+                                        | otherwise = estado {jogadoresEstado = atualizaIndiceLista numJogador jogadorUpd (jogadoresEstado estado), 
+                                                              disparosEstado = novoDisparo : disparosEstado estado}
+                  where jogadorEmCausa = encontraIndiceLista numJogador (jogadoresEstado estado)
+                        (jogadorUpd, novoDisparo) = parJogadorDisparo numJogador jogadorEmCausa arma  
+
+
+retiraIndiceLista :: Int -> [a] -> [a]
+retiraIndiceLista _ [] = []
+retiraIndiceLista n (h:t) | n == 0 = t
+                     | otherwise = h : retiraIndiceLista (n-1) t
+
+
+zeroVidas :: Jogador -> Bool
+zeroVidas j = vidasJogador j == 0
+
+
+zeroBalas :: Jogador -> Arma -> Bool
+zeroBalas jgr Choque = choquesJogador jgr == 0
+zeroBalas jgr Laser = lasersJogador jgr == 0 
+
+
+emChoque :: Int -> PosicaoGrelha -> [Disparo] -> [Jogador] -> Bool
+emChoque n (x,y) [] _ = False 
+emChoque n (x,y) (DisparoChoque nJ temp:t) lJog = ((n /= nJ ) && ((x - xD)^2 <= 3) && (y - yD)^2 <= 3) || emChoque n (x,y) t lJog
+                  where distQua = (x - xD)^2 + (y - yD)^2
+                        (xD, yD) = posicaoJogador (encontraIndiceLista nJ lJog)
+emChoque n (x,y) (_:t) lJog = emChoque n (x,y) t lJog
+
+
+caminhoLivre :: PosicaoGrelha -> Direcao -> [Jogador] -> Mapa -> Bool
+caminhoLivre (x,y) dire [] m  | dire == C = encontraPosicaoMatriz (x, y + 1) m == Vazia  && encontraPosicaoMatriz (x , y) m == Vazia 
+                              | dire == B = encontraPosicaoMatriz (x + 1, y + 1) m == Vazia  && encontraPosicaoMatriz (x + 1, y) m == Vazia
+                              | dire == E = encontraPosicaoMatriz (x + 1, y) m == Vazia  && encontraPosicaoMatriz (x , y) m == Vazia
+                              | dire == D = encontraPosicaoMatriz (x + 1, y + 1) m == Vazia  && encontraPosicaoMatriz (x, y + 1) m == Vazia
+caminhoLivre (x,y) dire (h:t) m | zeroVidas h = caminhoLivre (x,y) dire t m 
+                                | otherwise = ((x-x1)^2 + (y-y1)^2 > 2) && caminhoLivre (x,y) dire t m
+                              where (x1,y1) = posicaoJogador h 
+
+
+parJogadorDisparo :: Int -> Jogador -> Arma -> (Jogador, Disparo)
+parJogadorDisparo n jgr arma | arma == Canhao = ( jgr , 
+                                                  DisparoCanhao { jogadorDisparo = n, 
+                                                                  posicaoDisparo = (x + vX, y + vY), 
+                                                                  direcaoDisparo = direcaoJogador jgr })                                                    
+                             | arma == Laser =  ( jgr { lasersJogador = lasersJogador jgr - 1} ,
+                                                  DisparoLaser { jogadorDisparo = n,
+                                                                posicaoDisparo = (x + vX, y + vY),
+                                                                direcaoDisparo = direcaoJogador jgr} )
+                             | arma == Choque = ( jgr { choquesJogador = choquesJogador jgr - 1}, 
+                                                  DisparoChoque { jogadorDisparo = n,
+                                                                  tempoDisparo = 5})
+      where (x, y)   = posicaoJogador jgr
+            (vX, vY) = direcaoParaVetor (direcaoJogador jgr)

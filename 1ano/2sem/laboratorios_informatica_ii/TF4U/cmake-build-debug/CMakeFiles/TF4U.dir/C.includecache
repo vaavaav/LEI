@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/TF4U/main.c
+stdio.h
+-
+stdlib.h
+-
+

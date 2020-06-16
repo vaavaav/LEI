@@ -1,0 +1,163 @@
+-- | Este módulo define funções comuns da Tarefa 3 do trabalho prático.
+module Tarefa3_2018li1g156 where
+
+import LI11819
+import Tarefa0_2018li1g156
+import Tarefa1_2018li1g156
+import Tarefa2_2018li1g156
+
+-- * Testes
+
+-- | Testes unitários da Tarefa 3.
+--
+-- Cada teste é um 'Estado'.
+testesT3 :: [Estado]
+testesT3 = []
+
+-- * Funções principais da Tarefa 3.
+
+-- | Comprime um 'Estado' para formato textual.
+--
+-- __NB:__ A função 'show' representa um 'Estado' num formato textual facilmente legível mas extenso.
+--
+-- __NB:__ Uma boa solução deve representar o 'Estado' dado no mínimo número de caracteres possível.
+comprime :: Estado -- ^ 'Estado' a converter.
+         -> String -- ^ 'Estado' convertido numa código de caracteres.
+comprime (Estado m jgs dps) = show (x) ++ (' ' : show (y)) ++ ('.' : unwords ( abc m) ++ ('.':converteListaJogadores jgs) ++ ('.':converteListaDisparos dps))
+                            where (x,y) = dimensaoMatriz m 
+
+-- | Usa a funcao auxiliar 'converteListaMapa' para converter o mapa atual numa 'Matriz' em que cada linha da matriz é codificada de acordo com o seu tamanho e tipo de 'Peca'.
+
+abc :: Mapa     -- ^ 'Mapa' a ser processado.
+    -> [String] -- ^ Lista de um conjunto de listas codificadas com caracteres de acordo com o mapa e suas propriedades.
+abc [] = []
+abc m = map converteListaMapa ((take (fst (dimensaoMatriz m) - 2) . (drop 1)) (map (take (snd (dimensaoMatriz m) - 2) . (drop 1))  m))
+       
+-- | Converte uma lista de 'Peca' numa 'String' codificando de acordo com a propriedade da 'Peca' e o tamanho da lista.
+
+converteListaMapa :: [Peca] -- ^ Lista de 'Peca' a converter.
+                  -> String -- ^ Lista de 0,1,2 resultante da conversão.
+converteListaMapa [] = ""
+converteListaMapa (h:t) | h == Vazia = '0':converteListaMapa t
+                        | h == Bloco Indestrutivel = '2':converteListaMapa t
+                        | h == Bloco Destrutivel = '1':converteListaMapa t
+
+-- | É convertido uma lista de 'Jogador' numa 'String' em que cada 'Jogador' é separador pelo caracter 'J'.
+
+converteListaJogadores :: [Jogador] -- ^ Lista de 'Jogador' atual.
+                       -> String    -- ^ 'String' resultante da conversão da lista de jogadores, separando-os por 'J'.
+converteListaJogadores [] = []
+converteListaJogadores (h:t) = hString ++ converteListaJogadores t
+                    where hString = "J" ++ unwords [show x , show y , show (dirInt(direcaoJogador h)), show (vidasJogador h) , show (lasersJogador h) , show (choquesJogador h)]
+                          (x,y) = posicaoJogador h 
+
+-- | Converte-se uma lista de 'Disparos' numa 'String' em que separa cada 'Disparo' pelo caracter 'D' e o tipo de 'Disparo' pelos caracteres 'C','X','L' seguido das suas propriedades separadas por espaços.
+
+converteListaDisparos :: [Disparo] -- ^ Lista de Disparos atuais.
+                      -> String    -- ^ Lista de caracteres que resulta da conversão apresentada.
+converteListaDisparos [] = []
+converteListaDisparos (DisparoChoque n ti : t) = hString ++ converteListaDisparos t
+                    where hString = "DX" ++ unwords [show n , show ti]
+converteListaDisparos (DisparoLaser a (x,y) c : t) = hString ++ converteListaDisparos t
+                    where hString = "DL" ++ unwords [show a , show x , show y , show (dirInt c)]
+converteListaDisparos (DisparoCanhao a (x,y) c :t) = hString ++ converteListaDisparos t
+                    where hString = "DC" ++ unwords [show a , show x , show y , show (dirInt c)] 
+
+-- | Atribuição a cada 'Direcao' um 'Int'.
+
+dirInt :: Direcao -- ^ 'Direcao' pedida.
+       -> Int     -- ^ 'Int' respetivo.
+dirInt E = 3
+dirInt x = dirInt (succ x) - 1
+
+-- | Descomprime um 'Estado' no formato textual utilizado pela função 'comprime'.
+--
+-- __NB:__ A função 'comprime' é válida de for possível recuperar o 'Estado' utilizando a função 'descomprime', i.e.:
+--
+-- prop> descomprime . comprime = id
+--
+-- __NB:__ Esta propriedade é particularmente válida para a solução pré-definida:
+--
+-- prop> read . show = id
+descomprime :: String -- ^ 'String' em causa.
+            -> Estado -- ^ 'Estado' resultante do processo.
+descomprime x = Estado {
+                       mapaEstado = constroiMapa (mapaInicial (l,c)) (0,0) (l,c) m,
+                       jogadoresEstado = (map (criaJogador) . drop 1) (separador j 'J'),
+                       disparosEstado = criaDisparos (drop 1 (separador d 'D'))
+                       }
+               where (l,c) = dimensaoMapa dim
+                     [dim, m, j, d] = separador x '.'
+
+dimensaoMapa :: String 
+             -> Dimensao
+dimensaoMapa (h:t) = (read (x) :: Int, read (y) :: Int)
+                                  where (x,y) = separaDimensao (h:t)
+
+separaDimensao :: String 
+               -> (String, String)
+separaDimensao (h:t) | h == ' ' = ([], t)
+                     | otherwise = (h:x,y)
+                     where (x,y) = separaDimensao t
+                    
+constroiMapa :: Mapa 
+             -> Posicao 
+             -> Dimensao 
+             -> String 
+             -> Mapa
+constroiMapa _ (_,_) (0,_) [] = []
+constroiMapa _ (_,_) (_,0) [] = []
+constroiMapa m (_,_) (_,_) [] = m 
+constroiMapa m (x,y) (l,c) (h:t) | x == l - 2 = m
+                                 | y == c - 2 = constroiMapa m (x+1,0) (l,c) t 
+                                 | h == '0' = constroiMapa m (x,y+1) (l,c) t
+                                 | otherwise = constroiMapa newMap (x,y+1) (l,c) t
+                                 where newMap = atualizaPosicaoMatriz (x+1,y+1) elem m 
+                                       elem = if (h == '1') then Bloco Destrutivel else Bloco Indestrutivel
+
+-- | Obtém-se um 'Jogador' a partir de uma 'String' codificada para o caso.
+
+criaJogador :: String  -- ^ 'String' a processar.
+            -> Jogador -- ^ 'Jogador' resultante.
+criaJogador s = Jogador { posicaoJogador = (x,y),
+                          direcaoJogador = inversaDirInt d,
+                          vidasJogador = v,
+                          lasersJogador = l,
+                          choquesJogador = c }
+              where [x,y,d,v,l,c] = (map (read) (separador s ' ') ) :: [Int]
+
+-- | A partir de uma lista de 'String' consegue-se uma lista de 'Disparo' e suas propriedades.
+
+criaDisparos :: [String]  -- ^ lista de 'String' a converter.
+             -> [Disparo] -- ^ lista de 'Disparo' obtida.
+criaDisparos [] = []
+criaDisparos (('X':hs):t) = DisparoChoque { jogadorDisparo = n, 
+                                           tempoDisparo = ti } : criaDisparos t
+                         where [n,ti] = (map read (separador hs ' ')) :: [Int]
+criaDisparos (('L':hs):t) = DisparoLaser { jogadorDisparo = n,
+                                          posicaoDisparo = (x,y),
+                                          direcaoDisparo = inversaDirInt c } : criaDisparos t
+                    where [n,x,y,c] = (map read (separador hs ' ')) :: [Int]
+criaDisparos (('C':hs):t) = DisparoCanhao { jogadorDisparo = n,
+                                      posicaoDisparo = (x,y),
+                                      direcaoDisparo = inversaDirInt c} : criaDisparos t
+                    where [n,x,y,c] = (map read (separador hs ' ')) :: [Int]
+
+-- | Função com propósito inverso da função 'DirInt'.
+
+inversaDirInt :: Int     -- ^ Caracter a tratar.
+              -> Direcao -- ^ 'Direcao' após a conversão.
+inversaDirInt 3 = E
+inversaDirInt x = pred (inversaDirInt (x + 1))
+
+-- | Separa uma 'String' numa lista de 'String' separando na localização de um carater 'k', retirando-o posteriormente.
+
+separador :: String   -- ^ 'String' em causa.
+          -> Char     -- ^ Caracter de separação
+          -> [String] -- ^ Lista de 'String' final
+separador [] _ = [""]
+separador [h] k = if (h == k) then ["",""] else [[h]]
+separador (h:i:t) k | h == k = "" : separador (i:t) k
+                    | otherwise = (h : h1) :t1
+                  where (h1:t1) = separador (i:t) k
+                    

@@ -1,0 +1,116 @@
+-- | Este módulo define funções comuns da Tarefa 4 do trabalho prático.
+module Tarefa4_2018li1g156 where
+import Tarefa3_2018li1g156
+import Tarefa2_2018li1g156
+import Tarefa1_2018li1g156
+import Tarefa0_2018li1g156
+import LI11819
+
+testel = [MudaParede,Move C,Move B,Move B,Move D,Move D,Move D,Move D,Move B,Move B,Move E,Move C,Move E,Move C,Move C,Move E,Move C,Desenha,Move D,Move D]
+-- * Testes
+-- | Testes unitários da Tarefa 4.
+--
+-- Cada teste é um 'Estado'.
+testesT4 :: [Estado]
+testesT4 = [Estado (constroi []) (ljogs1) (ldps1), Estado (constroi (teste2)) (ljogs1) ldps2]
+
+-- * Funções principais da Tarefa 4.
+
+-- | Avança o 'Estado' do jogo um 'Tick' de tempo.
+--
+-- __NB:__ Apenas os 'Disparo's afetam o 'Estado' do jogo com o passar do tempo.
+--
+-- __NB:__ Deve chamar as funções 'tickChoques', 'tickCanhoes' e 'tickLasers' pela ordem definida.
+tick :: Estado -- ^ O 'Estado' anterior.
+     -> Estado -- ^ O 'Estado' após um 'Tick'.
+tick = tickChoques . tickCanhoes . tickLasers
+
+-- | Avança o 'Estado' do jogo um 'Tick' de tempo, considerando apenas os efeitos dos tiros de 'Laser' disparados.
+tickLasers :: Estado -> Estado
+tickLasers e@(Estado m js []) = e
+tickLasers e@(Estado m js ds) = let [ls,os] = lLasers ds in case ls of
+                                      [] -> e
+                                      _ -> (acaoLaser (alcance (head ls) m 0) ls m js os)
+
+lLasers :: [Disparo] -> [[Disparo]]
+lLasers [] = [[],[]]
+lLasers (d:ds) = case d of
+                DisparoLaser _ _ _ -> [d:h,t]
+                _ -> [h,d:t]
+        where [h,t] = lLasers ds 
+
+alcance :: Disparo -> Mapa -> Int -> Int
+alcance d@(DisparoLaser n (x,y) dire) m a | (encontraPosicaoMatriz bloco1 m) == Bloco Indestrutivel || (encontraPosicaoMatriz bloco2 m) == Bloco Indestrutivel = a
+                                          | otherwise = alcance (DisparoLaser n (somaVetores (x,y) (direcaoParaVetor dire)) dire) m (a+1) 
+                                          where [bloco1, bloco2] = map (somaVetores (x,y)) (direcaoPosi dire)
+
+acaoLaser :: Int -> [Disparo] -> Mapa -> [Jogador] -> [Disparo] -> Estado
+acaoLaser a (d@(DisparoLaser _ pos dire):t) m js ds | length t == 0 && a == 0 = Estado m js ds
+                                                    | a == 0 = acaoLaser (alcance (head t) m 0) t m js ds
+                                                    | otherwise = acaoLaser (a-1) (d:t) mU jsU dsU
+                                       where mU = (atualizaPosicaoMatriz bloco1 Vazia . atualizaPosicaoMatriz bloco2 Vazia) m
+                                             jsU = seAtingido (multiplicaVetor a pos) js
+                                             dsU = destroiBala (multiplicaVetor a pos) ds 
+                                             [bloco1, bloco2] = map (somaVetores (multiplicaVetor a pos)) (direcaoPosi dire)
+
+seAtingido :: Posicao -> [Jogador] -> [Jogador]
+seAtingido pos [] = []
+seAtingido pos (j@(Jogador (x,y) _ v _ _):t) | pos == (x,y) || pos == (x-1,y+1) || pos == (x+1,y-1) = j {vidasJogador = vidasJogador j - 1} : seAtingido pos t
+                                             | otherwise = j : seAtingido pos t
+
+destroiBala :: Posicao -> [Disparo] -> [Disparo]
+destroiBala pos [] = []
+destroiBala pos (h:t) = case h of 
+                    DisparoCanhao _ pos' _ -> if pos == pos' then destroiBala pos t else h : (destroiBala pos t)
+                    _ -> h : (destroiBala pos t) 
+
+-- | Avança o 'Estado' do jogo um 'Tick' de tempo, considerando apenas os efeitos das balas de 'Canhao' disparadas.
+tickCanhoes :: Estado -> Estado
+tickCanhoes e@(Estado m js []) = e
+tickCanhoes e@(Estado m js (h:t)) = case h of
+                                  (DisparoCanhao n pos d) -> atinge [h,h] (Estado mU jsU dsU) 
+                                  _ -> (Estado mU jsU (h:dsU))
+                               where (Estado mU jsU dsU) = tickCanhoes (e {disparosEstado = t})
+
+atinge :: [Disparo] -> Estado -> Estado
+atinge [] e = e      
+atinge (d@(DisparoCanhao n (x,y) dire):ds) (Estado m [] [] ) = case (encontraPosicaoMatriz bloco1 m) of                                             
+                                                    Bloco Destrutivel -> case (encontraPosicaoMatriz bloco2 m) of
+                                                                         Bloco Destrutivel -> (Estado (((atualizaPosicaoMatriz bloco1 Vazia).(atualizaPosicaoMatriz bloco2 Vazia)) m) [] [])
+                                                                         _ -> (Estado (atualizaPosicaoMatriz bloco1 Vazia m) [] [])
+                                                    Vazia -> case (encontraPosicaoMatriz bloco2 m) of 
+                                                                         Bloco Destrutivel -> (Estado (atualizaPosicaoMatriz bloco2 Vazia m) [] [])
+                                                                         Vazia -> (Estado m [] (if length ds == 0 then [] else [d {posicaoDisparo = somaVetores (posicaoDisparo d) (direcaoParaVetor dire)}]))
+                                                                         _ -> (Estado m [] [])
+                                                    _ -> case (encontraPosicaoMatriz bloco2 m) of
+                                                                         Bloco Destrutivel -> (Estado (atualizaPosicaoMatriz bloco2 Vazia m) [] [])
+                                                                         _ -> (Estado m [] [])
+                                                             where where [bloco1, bloco2] = map (somaVetores (x,y)) (direcaoPosi dire)  
+atinge (d@(DisparoCanhao n (x,y) dire):ds) (Estado m (h:t) []) | vidasJogador h <= 0 = (Estado mU (h:jsU) dsU)
+                                                               | otherwise = if ((x-x1)^2 + (y-y1)^2 <= 2 && (x1-x2)^2 + (y1-y2)^2 /= 0) then (Estado m ((h{vidasJogador = vidasJogador h - 1}):jogadoresEstado (atinge ds (Estado m t []))) []) else (Estado mU (h:jsU) dsU)
+                                   where (x1,y1) = posicaoJogador h 
+                                         (x2,y2) = subtraiVetores (x,y) (direcaoParaVetor dire)
+                                         (Estado mU jsU dsU) = atinge (d:ds) (Estado m t [])                                         
+atinge (d@(DisparoCanhao n (x,y) dire):ds) (Estado m js (h:t)) = case h of
+                                     (DisparoCanhao n (a,b) d) -> if ((a,b) == (x,y) || (a,b) == (subtraiVetores (x,y) (direcaoParaVetor dire))) && dire /= d then (atinge ds (Estado m js t)) else (Estado mU jsU (h:dsU))
+                                     _ -> (Estado mU jsU (h:dsU)) 
+                                     where (Estado mU jsU dsU) = atinge (d:ds) (Estado m js t)
+
+
+-- | Avança o 'Estado' do jogo um 'Tick' de tempo, considerando apenas os efeitos dos campos de 'Choque' disparados.
+tickChoques :: Estado -> Estado
+tickChoques (Estado m js ds) = Estado m js (updChoque ds)
+
+updChoque :: [Disparo] -> [Disparo]
+updChoque [] = []
+updChoque (h:t) = case h of
+                  (DisparoChoque n ti) -> if (ti == 1) then updChoque t else h {tempoDisparo = ti - 1} : (updChoque t)
+                  _ -> updChoque t 
+
+
+
+direcaoPosi :: Direcao -> [Posicao]
+direcaoPosi C = [(0,0),(0,1)]
+direcaoPosi D = [(0,1),(1,1)]
+direcaoPosi B = [(1,1),(1,0)]
+direcaoPosi E = [(1,0),(0,0)]

@@ -1,0 +1,134 @@
+-- | Este módulo define funções comuns da Tarefa 1 do trabalho prático.
+module Tarefa1_2018li1g156 where
+
+import Tarefa0_2018li1g156
+
+import LI11819
+
+import Tarefa0_2018li1g156
+
+-- * Testes
+
+-- | Testes unitários da Tarefa 1.
+--
+-- Cada teste é uma sequência de 'Instrucoes'.
+testesT1 :: [Instrucoes]
+testesT1 = [[Move D, Desenha, Move B, Move B, Move B, Roda, MudaParede, Move D, Move D, Move D, Desenha, Move B]]
+
+
+-- * Funções principais da Tarefa 1.
+
+-- | Aplica uma 'Instrucao' num 'Editor'.
+--
+--    * 'Move' - move numa dada 'Direcao'.
+--
+--    * 'MudaTetromino' - seleciona a 'Peca' seguinte (usar a ordem léxica na estrutura de dados),
+--       sem alterar os outros parâmetros.
+--
+--    * 'MudaParede' - muda o tipo de 'Parede'.
+--
+--    * 'Desenha' - altera o 'Mapa' para incluir o 'Tetromino' atual, sem alterar os outros parâmetros.
+instrucao :: Instrucao -- ^ A 'Instrucao' a aplicar.
+          -> Editor    -- ^ O 'Editor' anterior.
+          -> Editor    -- ^ O 'Editor' resultante após aplicar a 'Instrucao'.
+instrucao (Move C) ed = ed {posicaoEditor = (x-1,y)}
+   where (x,y) = posicaoEditor ed                                  
+instrucao (Move B) ed = ed {posicaoEditor = (x+1,y)}           
+   where (x,y) = posicaoEditor ed
+instrucao (Move E) ed = ed {posicaoEditor = (x,y-1)}
+   where (x,y) = posicaoEditor ed                                    
+instrucao (Move D) ed = ed {posicaoEditor = (x,y+1)}
+   where (x,y) = posicaoEditor ed
+instrucao (Roda) ed = ed {direcaoEditor = roda (direcaoEditor ed)}
+instrucao (MudaTetromino) ed = ed {tetrominoEditor = mudatet (tetrominoEditor ed)}
+instrucao (MudaParede) ed = ed {paredeEditor = tipoParedeMuda (paredeEditor ed)}
+instrucao (Desenha) ed = ed {mapaEditor = desenhaTetromino ed (mapaEditor ed) (tetrominoReal ed) (0,0)}
+
+roda :: Direcao -> Direcao
+roda C = D
+roda D = B
+roda B = E
+roda E = C
+
+mudatet :: Tetromino -> Tetromino
+mudatet I = J
+mudatet J = L
+mudatet L = O
+mudatet O = S
+mudatet S = T
+mudatet T = Z
+mudatet Z = I
+
+tipoParedeMuda :: Parede -> Parede
+tipoParedeMuda Indestrutivel = Destrutivel
+tipoParedeMuda Destrutivel = Indestrutivel
+
+ordemTetromino :: Tetromino -> Int
+ordemTetromino I = 4 
+ordemTetromino J = 3  
+ordemTetromino L = 3
+ordemTetromino O = 2
+ordemTetromino S = 3
+ordemTetromino T = 3
+ordemTetromino Z = 3 
+
+tetrominoReal :: Editor -> Matriz Bool
+tetrominoReal edi | (direcaoEditor edi) == C = tetromino
+                  | (direcaoEditor edi) == D = rodaMatriz tetromino
+                  | (direcaoEditor edi) == B = rodaMatriz (rodaMatriz(tetromino))
+                  | (direcaoEditor edi) == E = rodaMatriz (rodaMatriz (rodaMatriz (tetromino)))
+              where tetromino = tetrominoParaMatriz (tetrominoEditor edi)
+
+
+desenhaTetromino :: Editor -> Mapa -> Matriz Bool -> Posicao -> Mapa
+desenhaTetromino edi mapa tetromino (l,c) | l == ordemTetromino (tetrominoEditor edi) = mapa
+                                          | c == ordemTetromino (tetrominoEditor edi) = desenhaTetromino edi mapa tetromino (l+1, 0) 
+                                          | elem == False = desenhaTetromino edi mapa tetromino (l,c+1)                                    
+                                          | otherwise = desenhaTetromino edi newMapa tetromino (l,c+1)  
+                                     where elem = encontraPosicaoMatriz (l,c) tetromino
+                                           newMapa = (atualizaPosicaoMatriz (x+l,y+c) ( Bloco (paredeEditor edi)) mapa)
+                                           (x,y) = posicaoEditor edi
+-- | Aplica uma sequência de 'Instrucoes' num 'Editor'.
+--
+-- __NB:__ Deve chamar a função 'instrucao'.
+instrucoes :: Instrucoes -- ^ As 'Instrucoes' a aplicar.
+           -> Editor     -- ^ O 'Editor' anterior.
+           -> Editor     -- ^ O 'Editor' resultante após aplicar as 'Instrucoes'.
+instrucoes [] edi = edi             
+instrucoes (h:t) edi = instrucoes t (instrucao h edi) 
+
+-- | Cria um 'Mapa' inicial com 'Parede's nas bordas e o resto vazio.
+mapaInicial :: Dimensao -- ^ A 'Dimensao' do 'Mapa' a criar.
+            -> Mapa     -- ^ O 'Mapa' resultante com a 'Dimensao' dada.
+mapaInicial dimI = bordas (0,0) dimI (criaMatriz dimI Vazia)
+                 where
+                   bordas (x1,y1) (x2,y2) mapaI | x1 > x2  = mapaI
+                                                | y1 > y2 = bordas (x1+1, 0) (x2,y2) mapaI
+                                                | eBordaMatriz (x1,y1) mapaI = bordas (x1,y1+1) (x2,y2) mapaAtual
+                                                | otherwise = bordas (x1,y1+1) (x2,y2) mapaI
+                                                where mapaAtual = atualizaPosicaoMatriz (x1,y1) (Bloco Indestrutivel) mapaI  
+-- | Cria um 'Editor' inicial.
+--
+-- __NB:__ Deve chamar as funções 'mapaInicial', 'dimensaoInicial', e 'posicaoInicial'.
+editorInicial :: Instrucoes  -- ^ Uma sequência de 'Instrucoes' de forma a poder calcular a  'dimensaoInicial' e a 'posicaoInicial'.
+              -> Editor      -- ^ O 'Editor' inicial, usando a 'Peca' 'I' 'Indestrutivel' voltada para 'C'.
+editorInicial l = Editor  { posicaoEditor = posicaoInicial l
+                          , direcaoEditor = C
+                          , tetrominoEditor = I
+                          , paredeEditor = Indestrutivel
+                          , mapaEditor = mapaInicial (dimensaoInicial l)
+                          }
+
+-- | Constrói um 'Mapa' dada uma sequência de 'Instrucoes'.
+--
+-- __NB:__ Deve chamar as funções 'Instrucoes' e 'editorInicial'.
+constroi :: Instrucoes -- ^ Uma sequência de 'Instrucoes' dadas a um 'Editor' para construir um 'Mapa'.
+         -> Mapa       -- ^ O 'Mapa' resultante.
+constroi listaIntrucoes = mapa
+                        where Editor {mapaEditor = mapa} = instrucoes listaIntrucoes (editorInicial listaIntrucoes)
+                              
+
+
+
+
+

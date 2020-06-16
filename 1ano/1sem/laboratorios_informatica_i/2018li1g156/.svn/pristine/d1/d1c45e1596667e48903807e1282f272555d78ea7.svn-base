@@ -1,0 +1,189 @@
+-- | Este módulo define funções comuns da Tarefa 6 do trabalho prático.
+module Tarefa6_2018li1g156 where
+
+import LI11819
+import Tarefa0_2018li1g156
+import Tarefa1_2018li1g156
+import Tarefa2_2018li1g156
+import Tarefa4_2018li1g156
+
+-- * Funções principais da Tarefa 6.
+
+-- | Define um ro'bot' capaz de jogar autonomamente o jogo.
+bot :: Int          -- ^ O identificador do 'Jogador' associado ao ro'bot'.
+    -> Estado       -- ^ O 'Estado' para o qual o ro'bot' deve tomar uma decisão.
+    -> Maybe Jogada -- ^ Uma possível 'Jogada' a efetuar pelo ro'bot'.
+bot n e@(Estado m js ds) | ((contaTrue (podeDisparar jEmCausa js m) >= 3) && (l >= 1)) = Just (Dispara Laser)
+                         | ((contaTrue (podeDisparar jEmCausa js m) <= 2) && (contaTrue (podeDisparar jEmCausa js m) >= 1)) || ((contaTrue (podeDisparar jEmCausa js m) > 2) && (lasersJogador jEmCausa == 0)) = Just (Dispara Canhao)
+                         | distanciaCB jEmCausa ds = Just (Movimenta B)
+                         | distanciaDB jEmCausa ds = Just (Movimenta D)
+                         | caminhoLivre (somaVetores p (direcaoParaVetor E)) E (elimIndiceLista n js) m  && elem True ((ifTirosX ds jEmCausa)) = Just (Movimenta E)
+                         | caminhoLivre (somaVetores p (direcaoParaVetor D)) D (elimIndiceLista n js) m  && elem True ((ifTirosX ds jEmCausa)) = Just (Movimenta D)
+                         | caminhoLivre (somaVetores p (direcaoParaVetor C)) C (elimIndiceLista n js) m  && elem True ((ifTirosY ds jEmCausa)) = Just (Movimenta C)
+                         | caminhoLivre (somaVetores p (direcaoParaVetor B)) B (elimIndiceLista n js) m  && elem True ((ifTirosY ds jEmCausa)) = Just (Movimenta B)
+                         | elem True (naoMata ds (encontraIndiceLista n js)) = Nothing
+                         | otherwise = maybeMove (ordemDir d 4) n e
+              where jEmCausa@(Jogador p d v l c) = encontraIndiceLista n js 
+
+-- | 
+ordemDir :: Direcao   -- ^
+         -> Int       -- ^
+         -> [Direcao] -- ^
+ordemDir d n | n == 0 = [] 
+             | otherwise = case d of   
+                      E -> E : ordemDir C (n-1) 
+                      _ -> d : ordemDir (succ d) (n-1) 
+
+-- |
+maybeMove :: [Direcao]    -- ^
+          -> Int          -- ^
+          -> Estado       -- ^
+          -> Maybe Jogada -- ^
+maybeMove [] _ _ = Nothing
+maybeMove (h:t) n e@(Estado m js ds) | e' == jogada n (Movimenta h) e' = maybeMove t n e
+                              | otherwise = Just (Movimenta h)                             
+                     where e' = e{jogadoresEstado = atualizaIndiceLista n jEmCausa{direcaoJogador = h} js}
+                           jEmCausa@(Jogador p d v l c) = encontraIndiceLista n js 
+                              
+-- | Função que verifica se existe tiros nas colunas onde o 'Jogador' pode ser atingido.
+ifTirosX :: [Disparo] -- ^ Lista de 'Disparo' presente.
+         -> Jogador   -- ^ 'Jogador' em causa.
+         -> [Bool]    -- ^ Lista de 'Bool' resultante de cada tiro.
+ifTirosX [] j = [False]
+ifTirosX (h:t) j@(Jogador (x,y) dir v l c) = case h of
+    DisparoChoque n tick -> ifTirosX t j
+    _ -> (((x < z) && (y == w) && (dire == C)) || ((x < z) && (y == w+1) && (dire == C)) || ((x < z) && (y == w-1) && (dire == C)) 
+         || ((x > z) && (y == w) && (dire == B)) || ((x > z) && (y == w+1) && (dire == B)) || ((x > z) && (y == w-1) && (dire == B))) : ifTirosX t j
+        where (z,w) = posicaoDisparo h
+              dire = direcaoDisparo h
+
+-- | Função que verifica se existe tiros nas linhas onde o 'Jogador' pode ser atingido.
+ifTirosY :: [Disparo] -- ^ Lista de 'Disparo' em causa.
+         -> Jogador   -- ^ 'Jogador' a tratar.
+         -> [Bool]    -- ^ Lista de 'Bool' resultante de cada tiro.
+ifTirosY [] j = [False]
+ifTirosY (h:t) j@(Jogador (x,y) dir v l c) = case h of
+    DisparoChoque n tick -> ifTirosY t j
+    _ -> (((x == z) && (y < w) && (dire == E)) || ((x == z+1) && (y < w) && (dire == E)) || ((x == z-1) && (y < w) && (dire == E)) 
+         || ((x == z) && (y > w) && (dire == D)) || ((x == z+1) && (y > w) && (dire == D)) || ((x == z-1) && (y > w) && (dire == D))) : ifTirosY t j
+        where (z,w) = posicaoDisparo h
+              dire = direcaoDisparo h
+
+-- | Analisa se o 'Jogador' se pode mover de modo a que não esteja na trajetória de uma dada bala.
+naoMata :: [Disparo] -- ^ Lista de 'Disparo' a analisar.
+        -> Jogador   -- ^ 'Jogador' em causa.
+        -> [Bool]    -- ^ Lista de 'Bool' originada.
+naoMata [] j = [False]
+naoMata (DisparoChoque n tick : t) j = naoMata t j
+naoMata (DisparoCanhao n (z,w) dire : t) j@(Jogador (x,y) d v l c) = (((x == z+2) && (y > w) && (abs (y - w) <= 2) && (dire == D))
+                                                                    || ((x == z+2) && (y == w)) 
+                                                                    || ((x == z-2) && (y == w)) 
+                                                                    || ((x == z+2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                    || ((x == z-2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                    || ((x == z-2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                    || ((x < z) && (y == w+2) && (abs (x - z) <= 2) && (dire == C))
+                                                                    || ((x == z) && (y == w+2)) 
+                                                                    || ((x == z) && (y == w-2)) 
+                                                                    || ((x < z) && (y == w-2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                    || ((x > z) && (y == w+2) && (abs (x - z) <= 2) && (dire == B)) 
+                                                                    || ((x > z) && (y == w-2) && (abs (x - z) <= 2) && (dire == B))) : naoMata t j
+naoMata (DisparoLaser n (z,w) dire : t) j@(Jogador (x,y) d v l c) = (((x == z+2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                   || ((x == z+2) && (y < w) && (abs (y - w) <= 2) && (dire == E))
+                                                                   || ((x == z+2) && (y == w)) 
+                                                                   || ((x == z-2) && (y == w)) 
+                                                                   || ((x == z-2) && (y > w) && (abs (y - w) <= 2) && (dire == D)) 
+                                                                   || ((x == z-2) && (y < w) && (abs (y - w) <= 2) && (dire == E)) 
+                                                                   || ((x < z) && (y == w+2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                   || ((x == z) && (y == w+2)) 
+                                                                   || ((x == z) && (y == w-2)) 
+                                                                   || ((x < z) && (y == w-2) && (abs (x - z) <= 2) && (dire == C)) 
+                                                                   || ((x > z) && (y == w+2) && (abs (x - z) <= 2) && (dire == B)) 
+                                                                   || ((x > z) && (y == w-2) && (abs (x - z) <= 2) && (dire == B))) : naoMata t j 
+
+-- | Analisa um determinado caso para que o 'Jogador' não seja atingido na parte superior do 'Mapa'.
+distanciaCB :: Jogador   -- ^ 'Jogador' a analisar.
+            -> [Disparo] -- ^ Lista de 'Disparo' presente.
+            -> Bool      -- ^ 'Bool' correspondente.
+distanciaCB j@(Jogador (x,y) d v l c) ds = (x == 1 && (elem True (ifTirosY ds j))) || (x == 2 && (elem True (ifTirosY ds j))) || (x == 3 && (elem True (ifTirosY ds j)))
+
+-- | Analisa um determinado caso para que o 'Jogador' não seja atingido na parte esquerda do 'Mapa'.
+distanciaDB :: Jogador   -- ^ 'Jogador' em causa
+            -> [Disparo] -- ^ Lista de 'Disparo' a verificar
+            -> Bool      -- ^ 'Bool' resultante
+distanciaDB j@(Jogador (x,y) d v l c) ds = (y == 1 && (elem True (ifTirosX ds j))) || (y == 2 && (elem True (ifTirosX ds j))) || (y == 3 && (elem True (ifTirosX ds j)))
+
+-- | Verifica se existe um 'Jogador' de modo a que possa ser atingido.
+existeJogador :: [Jogador] -- ^ Lista de 'Disparo'.
+              -> Posicao   -- ^ 'Posicao' a analisar.
+              -> Bool      -- ^ 'Bool' final.
+existeJogador [] p = False
+existeJogador j@((Jogador (x,y) d v l c):t) (z,w) = case d of
+      C -> if ((z,w) == (x,y) || (z,w) == (x,y+1) || (z,w) == (x,y-1)) then True else existeJogador t (z,w)
+      D -> if ((z,w) == (x,y) || (z,w) == (x+1,y) || (z,w) == (x-1,y)) then True else existeJogador t (z,w)
+      B -> if ((z,w) == (x,y) || (z,w) == (x,y+1) || (z,w) == (x,y-1)) then True else existeJogador t (z,w)
+      E -> if ((z,w) == (x,y) || (z,w) == (x+1,y) || (z,w) == (x-1,y)) then True else existeJogador t (z,w)
+
+-- | Transforma uma Lista de 'Jogador' total numa lista de 'Jogador' que estão vivos.
+jogVivo :: [Jogador] -- ^ Lista de 'Jogador' inicial.
+        -> [Jogador] -- ^ Lista de 'Jogador' final.
+jogVivo [] = []
+jogVivo (h:t) | vidasJogador h == 0 = jogVivo t
+              | otherwise = h : jogVivo t
+
+-- | Analisa se existe 'Bloco Destrutivel' numa determinada 'Posicao'.
+existeBDestr :: Mapa    -- ^ 'Mapa' a tratar.
+             -> Posicao -- ^ 'Posicao' a verificar.
+             -> Bool    -- ^ 'Bool' resultante.
+existeBDestr [] p = False
+existeBDestr m (x,y) | (encontraPosicaoMatriz (x,y) m) == Bloco Destrutivel = True
+                     | otherwise = False
+
+-- | Analisa se um dado 'Jogador' pode disparar de forma a atingir outro 'Jogador' ou um 'Bloco Destrutivel'.
+podeDisparar :: Jogador   -- ^ 'Jogador' em causa.
+             -> [Jogador] -- ^ Lista de 'Jogador' existente.
+             -> Mapa      -- ^ 'Mapa' a tratar.
+             -> [Bool]    -- ^ Lista de 'Bool' final.
+podeDisparar j@(Jogador (x,y) d v l c) js m = concatenar (map (existeJogador (jogVivo js)) alc,map (existeBDestr m) alc)
+ where alc = posicoesDadas (x,y) d (alcanceJogador j m)
+
+-- | Conta quantos 'True' existem numa lista de 'Bool'.
+contaTrue :: [Bool] -- ^ Lista 'Bool' a analisar.
+          -> Int    -- ^ 'Int' resultante. 
+contaTrue [] = 0
+contaTrue (h:t) | h == True = 1 + contaTrue t
+                | otherwise = contaTrue t
+
+-- | Transforma um tuplo de listas numa lista. 
+concatenar :: ([a],[a]) -- ^ Tuplo original.
+           -> [a]       -- ^ Lista final.
+concatenar (a,b) = a ++ b
+
+-- | Lista de 'Int' vezes 'Posicao' originada desde uma dada 'Posicao' e sua 'Direcao'. 
+posicoesDadas :: Posicao   -- ^ 'Posicao' inicial.
+              -> Direcao   -- ^ 'Direcao' dada.
+              -> Int       -- ^ 'Int' fornecido.
+              -> [Posicao] -- ^ Lista de 'Posicao' resultante.
+posicoesDadas (x,y) dir int | int == 0 = []
+                            | dir == C = (x-1,y) : posicoesDadas (x-1,y) dir (int-1)
+                            | dir == D = (x,y+1) : posicoesDadas (x,y+1) dir (int-1)
+                            | dir == B = (x+1,y) : posicoesDadas (x+1,y) dir (int-1)
+                            | dir == E = (x,y-1) : posicoesDadas (x,y-1) dir (int-1)
+
+-- | Determina qual a distância desde o 'Jogador' até ao próximo 'Bloco Indestrutivel'.
+alcanceJogador :: Jogador -- ^ 'Jogador' a tratar.
+               -> Mapa    -- ^ 'Mapa' dado.
+               -> Int     -- ^ 'Int' final.
+alcanceJogador j@(Jogador pos dire v l c) m | stop = 0
+                                            | otherwise =  1 + alcanceJogador j{posicaoJogador = somaVetores pos $ direcaoParaVetor dire} m
+  where [bloco1, bloco2] = map (somaVetores pos) (blocosVet dire)
+        stop = encontraPosicaoMatriz bloco1 m == Bloco Indestrutivel || encontraPosicaoMatriz bloco2 m == Bloco Indestrutivel
+
+-- A criação de bots sempre foi uma tarefa bastante desafiadora para qualquer criador de jogos, uma vez que há uma variante enorme de casos específicos em que o ‘bot’ falha ou não reage de forma pensada e o nosso caso não foi exceção. Para além disso, os bots têm uma função essencial no jogo, uma vez que permite o jogo “singleplayer” ou seja, que apenas seja necessário 1 jogador para que o jogo se desenrole.
+-- O foco nesta tarefa foi criar um ‘bot’ bastante defensivo que se desviasse eficientemente das balas que o podem alvejar e, além disso, sempre que visse uma oportunidade em que este pudesse disparar de forma a atingir outro ‘Jogador’ ou um ‘Bloco Destrutível’ disparasse.
+-- Em primeiro lugar, recorremos a uma estratégia que se baseou em verificar se o bot se encontrava numa trajetória horizontal de alguma bala (‘ifTirosY’), e, caso se verificasse, o bot mover-se-ia para cima, e, se este não pudesse mover-se para cima por qualquer circunstância, este mover-se-ia para baixo. Porém esta técnica não era 100% eficiente uma vez que se disparasse uma bala horizontalmente na parte superior do mapa, o bot movia-se para cima e para baixo sucessivamente até a bala o atingir, e, portanto, teve-se que definir uma função para que isso não acontecesse e assim, o bot se movesse para baixo até estar fora de perigo (‘distanciaCB’)
+-- De seguida, optou-se pela mesma estratégia, mas para o caso de ser atingido por uma bala de trajetória vertical (‘ifTirosX’), movendo-se assim para a esquerda, caso se verificasse. Porém esta maneira do bot interagir com balas verticais ia resultar no mesmo erro que a estratégia anterior tivera, embora num local diferente (parte esquerda do mapa), e portanto recorreu-se à função ‘distanciaDB’ para corrigi-lo.
+-- Dito isto, o bot, desvia-se razoavelmente das balas, mas este não previa a trajetória das balas, ou seja, este apenas identificava perigo se se colocasse na trajetória das balas, e, por isso, teve-se que adotar uma técnica para que este previsse as trajetórias das balas presentes no mapa para que este não fosse atingido. Com a ajuda da função ‘naoMata’ este problema foi resolvido.
+-- Posteriormente, com o sucesso obtido com as técnicas anteriores, começou-se a pensar em formas do bot disparar contra ‘Jogador’ ou ‘Bloco Destrutivel’ e, portanto, definiu-se que, se houvesse algum ‘Jogador’ ou ‘Bloco Destrutivel’ na linha na sua direção que pudesse ser atingido, este dispararia um ‘DisparoCanhao’, mas, se houvesse 3 ou mais, dispararia um ‘DisparoLaser’ (se tivesse 1 ou mais lasers disponíveis).
+-- Por fim, não se queria que o bot ficasse parado se nenhuma destas condições se verificasse e, portanto, decidimos que bot iria movimentar-se sempre na sua direção, ou, caso fosse impossibilitado, rodasse 90 graus e seguisse o seu rumo.
+-- Em suma, esta tarefa foi um pouco esgotante, uma vez que se tinha de pensar numa vasta variedade de casos que podia surgir (tal como foi dito no início), mas foi bastante prazerosa de fazer uma vez que foi criada uma certa inteligência artificial capaz de jogar o jogo autonomamente, porém muito simples.
+  

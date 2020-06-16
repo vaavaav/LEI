@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/FT2TarefaU/infoNIB.c
+stdio.h
+-
+string.h
+-
+infoNIB.h
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/FT2TarefaU/infoNIB.h
+
+C:/Users/Pedro/Desktop/MIEI/1ANO/2SEMESTRE/LIii/FT2TarefaU/infoNIB.h
+
