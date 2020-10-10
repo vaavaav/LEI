@@ -1,0 +1,59 @@
+\documentclass[a4paper]{article}
+\usepackage{calc}
+\usepackage[x11names]{xcolor}
+\usepackage{schedule} 
+
+\begin{document}
+
+\pagestyle{empty}
+
+\SubUnits{60}
+\CellHeight{1.5cm}
+\CellWidth{3.5cm}
+\TimeRange{8:00-19:00}
+\BeginOn{Monday}
+\TextSize{\small}
+\FiveDay
+\TwentyFourHour
+\NewAppointment{T}{Snow3}{black}
+\NewAppointment{BD}{Coral1}{black}
+\NewAppointment{DSS}{Goldenrod1}{black}
+\NewAppointment{MNOL}{Khaki1}{black}
+\NewAppointment{MDIO}{DarkOliveGreen1}{black}
+\NewAppointment{RC}{LightBlue1}{black}
+\NewAppointment{SD}{Plum1}{black}
+\begin{schedule}[MIEI - 3rd year - 1st semester]
+    %%  MONDAY
+    \MNOL{\textbf{ MNOL }}{\\ PL1 \\ Ed. 1 - 0.22}{M}{8:00-10:00}
+    \MDIO{\textbf{ MDIO }}{\\ TP1/online \\ Ed. 1 - 0.22}{M}{10:00-12:00}
+    
+    %%  TUESDAY
+    \T{\textbf{ BD }}{\\ online}{T}{9:00-10:00}
+    \T{\textbf{ MNOL }}{\\ online}{T}{10:00-11:00}
+    \T{\textbf{ MDIO }}{\\ online}{T}{11:00-12:00}
+    \T{\textbf{ DSS }}{\\ online}{T}{14:00-15:00}
+    \T{\textbf{ SD }}{\\ online}{T}{15:00-16:00}
+    \T{\textbf{ RC }}{\\ online}{T}{16:00-17:00}
+
+    %%  WEDNESDAY
+
+    \SD{\textbf{ SD }}{\\ PL2 \\ Ed. 1 - 1.16}{W}{8:00-10:00}
+    \RC{\textbf{ RC }}{\\ PL2 \\ Ed. 1 - 1.16}{W}{10:00-12:00}
+    \DSS{\textbf{ DSS }}{\\ PL2 \\ Ed. 1 - 1.16}{W}{13:00-15:00}
+
+    %%  THURSDAY
+
+    \T{\textbf{ BD }}{\\ online}{Th}{9:00-10:00}
+    \T{\textbf{ MNOL }}{\\ online}{Th}{10:00-11:00}
+    \T{\textbf{ MDIO }}{\\ online}{Th}{11:00-12:00}
+    \T{\textbf{ DSS }}{\\ online}{Th}{14:00-15:00}
+    \T{\textbf{ SD }}{\\ online}{Th}{15:00-16:00}
+    \T{\textbf{ RC }}{\\ online}{Th}{16:00-17:00}
+
+    %% FRIDAY
+
+    \BD{\textbf{ BD }}{\\ PL2 \\ Ed. 1 - 1.21}{F}{8:00-10:00}
+\end{schedule}
+    
+
+\end{document}

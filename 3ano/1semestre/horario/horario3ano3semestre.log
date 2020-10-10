@@ -1,0 +1,186 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2020.10.7)  10 OCT 2020 11:13
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**horario3ano3semestre.tex
+(./horario3ano3semestre.tex
+LaTeX2e <2020-02-02> patch level 5
+L3 programming layer <2020-06-03>
+(/usr/share/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2019/12/20 v1.4l Standard LaTeX document class
+(/usr/share/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2019/12/20 v1.4l Standard LaTeX file (size option)
+)
+\c@part=\count167
+\c@section=\count168
+\c@subsection=\count169
+\c@subsubsection=\count170
+\c@paragraph=\count171
+\c@subparagraph=\count172
+\c@figure=\count173
+\c@table=\count174
+\abovecaptionskip=\skip47
+\belowcaptionskip=\skip48
+\bibindent=\dimen134
+)
+(/usr/share/texmf-dist/tex/latex/tools/calc.sty
+Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count175
+\calc@Bcount=\count176
+\calc@Adimen=\dimen135
+\calc@Bdimen=\dimen136
+\calc@Askip=\skip49
+\calc@Bskip=\skip50
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count177
+\calc@Cskip=\skip51
+)
+(/usr/share/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
+
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 225.
+
+(/usr/share/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
+)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1348.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1352.
+Package xcolor Info: Model `RGB' extended on input line 1364.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1366.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1367.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
+
+(/usr/share/texmf-dist/tex/latex/xcolor/x11nam.def
+File: x11nam.def 2016/05/11 v2.12 Predefined colors according to Unix/X11 (UK)
+))
+(/usr/share/texmf-dist/tex/latex/schedule/schedule.sty
+File: schedule.sty 
+Package: schedule 2019/7/31 v1.20 schedule package
+\cell@height=\skip52
+\cell@width=\skip53
+\box@depth=\skip54
+\c@sch@col@width=\count178
+\box@width=\skip55
+\col@width=\skip56
+\sch@depth=\skip57
+\fill@length=\skip58
+\@temp@length=\skip59
+\@@temp@length=\skip60
+\line@thickness=\skip61
+\adjusted@cell@width=\skip62
+\adjusted@cell@height=\skip63
+\c@picture@units@wide=\count179
+\c@xcoords=\count180
+\c@ycoords=\count181
+\c@timea=\count182
+\c@timeb=\count183
+\c@grid@width=\count184
+\c@grid@height=\count185
+\c@number@of@cells=\count186
+\c@number@of@subcells=\count187
+\c@number@of@days=\count188
+\c@dp@vlines=\count189
+\c@dp@hlines=\count190
+\c@dp@hcell@lines=\count191
+\c@pu@cell@width=\count192
+\c@pu@cell@height=\count193
+\c@pu@grid@top=\count194
+\c@pu@grid@width=\count195
+\c@pu@subticks=\count196
+\c@start@time=\count197
+\c@end@time=\count198
+\c@x@coord=\count199
+\c@y@coord=\count266
+\c@@tempc=\count267
+\c@@tempd=\count268
+\c@label@sep=\count269
+\c@x@Sunday=\count270
+\c@x@Monday=\count271
+\c@x@Tuesday=\count272
+\c@x@Wednesday=\count273
+\c@x@Thursday=\count274
+\c@x@Friday=\count275
+\c@x@Saturday=\count276
+\temp@box=\box45
+\@i=\count277
+\@j=\count278
+\c@ycoords@bot=\count279
+\c@x@tempa=\count280
+\c@x@tempb=\count281
+\c@y@tempa=\count282
+\c@y@tempb=\count283
+\c@temp@cnt@a=\count284
+\title@height=\skip64
+\label@height=\skip65
+\c@pu@label@width=\count285
+\center@hack=\skip66
+)
+(/usr/share/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
+File: l3backend-pdfmode.def 2020-06-03 L3 backend support: PDF mode
+\l__kernel_color_stack_int=\count286
+\l__pdf_internal_box=\box46
+)
+(./horario3ano3semestre.aux)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 6.
+LaTeX Font Info:    ... okay on input line 6.
+
+(/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count287
+\scratchdimen=\dimen137
+\scratchbox=\box47
+\nofMPsegments=\count288
+\nofMParguments=\count289
+\everyMPshowfont=\toks15
+\MPscratchCnt=\count290
+\MPscratchDim=\dimen138
+\MPnumerator=\count291
+\makeMPintoPDFobject=\count292
+\everyMPtoPDFconversion=\toks16
+)
+Overfull \hbox (97.73651pt too wide) in paragraph at lines 25--57
+| [] 
+ []
+
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+(./horario3ano3semestre.aux) ) 
+Here is how much of TeX's memory you used:
+ 2019 strings out of 480478
+ 27767 string characters out of 5905959
+ 296018 words of memory out of 5000000
+ 18096 multiletter control sequences out of 15000+600000
+ 533541 words of font info for 28 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 28i,7n,39p,184b,293s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmbx9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb>
+Output written on horario3ano3semestre.pdf (1 page, 44234 bytes).
+PDF statistics:
+ 24 PDF objects out of 1000 (max. 8388607)
+ 16 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+
