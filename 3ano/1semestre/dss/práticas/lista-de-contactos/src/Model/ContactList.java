@@ -18,8 +18,9 @@ public class ContactList implements ContactListFacade {
 
     }
 
-    public void addContact(Contact newContact){
-        this.contacts.put(newContact.getInfoNumber(0), newContact);
+    public void addContact(List<String> info)
+    {
+        this.contacts.put(info.get(0), new Contact(info));
     }
 
     public Contact getContact(String name){
@@ -47,17 +48,33 @@ public class ContactList implements ContactListFacade {
     }
 
 
-    public Contact getInfo(String name) throws NullPointerException{
+    public List<String> getInfo(String name) throws NullPointerException{
         Contact maybeC = this.contacts.get(name);
         if(maybeC == null)
             throw new NullPointerException(name + " is not registered in the list.");
-        return maybeC.clone();
+        return maybeC.getInfo();
     }
 
     public int size(){
         return this.contacts.size();
     }
 
+
+    public void setInfo(String originName, List<String> info){
+        Contact maybeC = this.contacts.get(originName);
+        if(maybeC == null)
+            throw new NullPointerException(originName + " is not registered in the list.");
+        this.contacts.remove(originName);
+        this.contacts.put(info.get(0), new Contact(info));
+
+    }
+
+    public void removeContact(String name){
+        Contact maybeC = this.contacts.get(name);
+        if(maybeC == null)
+            throw new NullPointerException(name + " is not registered in the list.");
+        this.contacts.remove(name);
+    }
 
 
 }

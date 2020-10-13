@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.3-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Contact">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <bottom>
+      <ToolBar prefHeight="54.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+        <items>
+          <Button fx:id="contact_BackButton" mnemonicParsing="false" onAction="#backButtonPressed" text="Back" />
+            <Button fx:id="contact_RemoveButton" mnemonicParsing="false" onAction="#removeButtonPressed" text="Remove" />
+        </items>
+      </ToolBar>
+   </bottom>
+   <left>
+      <GridPane prefHeight="329.0" prefWidth="277.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label fx:id="contact_Name" alignment="CENTER" prefHeight="31.0" prefWidth="101.0" text="Name">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="contact_Cellphone" alignment="CENTER" layoutX="10.0" layoutY="28.0" prefHeight="31.0" prefWidth="101.0" text="Cellphone" GridPane.rowIndex="1">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="contact_Telephone" alignment="CENTER" layoutX="10.0" layoutY="28.0" prefHeight="31.0" prefWidth="101.0" text="Telephone" GridPane.rowIndex="2">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="contact_Address" alignment="CENTER" layoutX="10.0" layoutY="28.0" prefHeight="31.0" prefWidth="101.0" text="Address" GridPane.rowIndex="3">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="contact_Skype" alignment="CENTER" layoutX="10.0" layoutY="161.0" prefHeight="31.0" prefWidth="101.0" text="Skype" GridPane.rowIndex="4">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="contact_NameOutput" alignment="CENTER" layoutX="10.0" layoutY="21.0" prefHeight="64.0" prefWidth="151.0" GridPane.columnIndex="1">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="contact_CellphoneOutput" alignment="CENTER" layoutX="10.0" layoutY="74.0" prefHeight="52.0" prefWidth="174.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="contact_TelephoneOutput" alignment="CENTER" layoutX="10.0" layoutY="127.0" prefHeight="59.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="contact_AddressOutput" alignment="CENTER" layoutX="10.0" layoutY="180.0" prefHeight="59.0" prefWidth="183.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="contact_SkypeOutput" alignment="CENTER" layoutX="10.0" layoutY="233.0" prefHeight="61.0" prefWidth="202.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+               <font>
+                  <Font name="SF Pro Display Regular" size="17.0" />
+               </font>
+            </Label>
+         </children>
+      </GridPane>
+   </left>
+</BorderPane>

@@ -1,0 +1,207 @@
+\documentclass[12pt, a4paper, titlepage, oneside, dvipsnames]{report}
+
+%-----------------------------------------------------------
+%	PACKAGES
+%-----------------------------------------------------------
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}  %accented characters,...
+\usepackage[portuguese]{babel} 
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amsfonts}
+\usepackage{tikz}
+\usepackage{tgbonum}
+\usepackage{mathtools}
+
+%-----------------------------------------------------------
+%	SETTINGS
+%-----------------------------------------------------------0
+
+\DeclareMathSizes{12}{15}{15}{15} % text size, display/text style, script style, scriptscript style
+
+
+%-----------------------------------------------------------
+%	
+%-----------------------------------------------------------0
+
+\begin{document}
+
+
+    \begin{titlepage}
+       \begin{center}
+           \vspace*{1cm}
+
+           \textbf{Métodos Numéricos e Otimização Não Linear}
+
+           \vspace{0.5cm}
+            %qualquer cena
+
+           \vspace{1.5cm}
+
+           \textbf{Pedro Peixoto}
+
+           \vfill
+
+           Apontamentos e resumos\\
+
+           \vspace{0.8cm}
+
+
+           Unidade Curricular : Métodos Numéricos e Otimização Não Linear\\
+           3º ano - Mestrado Integrado em Engenharia Informática (MIEI)\\
+           Universidade do Minho\\ 
+           Ano Letivo 2020/2021
+           Portugal\\
+
+       \end{center}
+    \end{titlepage}
+
+    \pagestyle{empty}
+
+
+    \chapter{Métodos Numéricos}
+
+    \section{Tipos de Erros}
+
+    \subsection{\color{RoyalPurple} Incerteza nos dados}
+
+        \begin{paragraph}\\
+        Os dados de entrada contêm um {\color{Mahogany} imprecisão} inerent, isto é, não há como os evitar,
+         uma vez que representam medidas obtidas usando equipamentos específicos (balanças, voltímetros, amperímetros, termómetros, ...).
+        \end{paragraph}
+
+
+        \begin{paragraph}\\
+        Não existe nenhum equipamento de medição com uma precisão 100\%.
+        \end{paragraph}
+
+        \begin{paragraph}\\
+        Como se poderá pesar átomos com uma balança de supermercado?
+        \end{paragraph}
+
+    \subsection{\color{RoyalPurple} Erro de arredondamento}
+
+        \begin{paragraph}\\
+        Surge na representação dos dados no computador - o tamanho da palavra no computador/calculadora tem {\color{Mahogany} tamanho limitado}.
+        \end{paragraph}
+
+
+        \begin{paragraph}\\
+        Como se poderá representar sem erro o valor {\color{RoyalPurple} \(\frac{1}{3} = 0.(3)\)}?
+        \end{paragraph}
+
+        \begin{paragraph}\\
+        E o valor de {\color{RoyalPurple} $\pi$} ? {\color{RoyalPurple} 3.14} ou {\color{RoyalPurple} 3.14159265358979} ???
+        \end{paragraph}
+
+        \begin{paragraph}\\
+        Os erros de arrendondamento vão-se acumulando à medida que se vão realizando operações aritméticas e, a sua influência 
+        no resultado pode ser muito ampliada. Muitas vezes, o resultado final de um conjunto de operações é diferente do resultado
+        exato.
+        \end{paragraph}
+
+    \subsection{\color{RoyalPurple} Erro de truncatura}
+
+        \begin{paragraph}\\
+        Na substituição de um problema contínuo por um {\color{Mahogany} discreto} (diferenciação numérica e integração numérica).
+        \end{paragraph}
+
+
+        \begin{paragraph}\\
+        Na substituição de um processo de cálculo infinito por um finito ({\color{Mahogany} métodos iterativos}).
+        \end{paragraph}
+
+        \begin{paragraph}{\color{OliveGreen} Exemplo}:\\
+        Pretende-se calcular {\color{RoyalPurple} $e^x$} usando a expressão em série de Taylor da função:\\
+        \[
+            \color{RoyalPurple}
+            e^x = 1 + x + \frac{1}{2!}x^2 + \frac{1}{3!}x^3 + ... + \frac{1}{n!}x^n + ...  
+        \]\\
+        Se se usar apenas os {\color{RoyalPurple} n} termos da série (se a "truncarmos" no {\color{RoyalPurple} enésimo} termo)
+         obtém-se uma aproximação a {\color{RoyalPurple} $e^x$}:
+
+        \[
+            \color{RoyalPurple}
+            e^x \approx 1 + x + \frac{1}{2!}x^2 + \frac{1}{3!}x^3 + ... + \frac{1}{(n-1)!}x^{n-1}  
+        \]\\
+        \end{paragraph}
+
+    \subsection{\color{RoyalPurple} Formato Vírgula Flutuante}
+
+        \[
+            \color{RoyalPurple}
+            fl(x) = \pm 0.d_1d_2...d_k \times b^e
+        \]
+
+        \begin{paragraph}\\
+        A mantissa {\color{RoyalPurple} \(d_1d_2...d_k\)} é um número finito de digítos que define o comprimento da palavra ({\color{RoyalPurple} k})
+         - a precisão aumenta com o aumento de {\color{RoyalPurple} k}.
+        \end{paragraph}
+
+        \begin{paragraph}\\
+        {\color{RoyalPurple} \(b\)} é a base de representação.
+        \end{paragraph}
+        \begin{paragraph}\\
+        {\color{RoyalPurple} \(e\)} é a expoente.
+        \end{paragraph}
+
+        \begin{paragraph}\\
+        Se {\color{RoyalPurple} \(d_1 \neq 0\)} o formato diz-se {\color{Mahogany} normalizado}, por exemplo, 
+        \[
+            \color{RoyalPurple}
+            fl(x) = \pm 0.d0045 \times 10^0, fl_{norm}(x) = 0.45 \times 10^{-2} 
+        \].
+        \end{paragraph}
+
+    \subsection{\color{RoyalPurple} Erro Absoluto}
+        Considere-se:
+        \(\color{RoyalPurple} \overline{x} \in I\!R\) - o valor exato de um número.\\
+        \(\color{RoyalPurple} x \in I\!R\) - o valor aproximado (o que vai ser utilizado nos cálculos).\\
+
+        \begin{paragraph}\\ 
+        \(\color{RoyalPurple} d_x = \lvert \overline{x} - x \rvert\) - o {\color{Mahogany} erro absoluto} (desconhecido).
+        \end{paragraph}
+        \begin{paragraph}\\
+        \(\color{RoyalPurple} \lvert \overline{x} - x \rvert \leq \delta_x\) - o limite superior do erro absoluto.
+        \end{paragraph}
+        \begin{paragraph}\\
+        \(\color{RoyalPurple} \overline{x} \in [ \, x - \delta_x, x + \delta_x ] \,\) - o intervalo de incerteza.
+        \end{paragraph}
+
+    \subsection{\color{RoyalPurple} Erro relativo}
+
+        \begin{paragraph}\\ 
+        \(\color{RoyalPurple} r_x = \frac{\lvert \overline{x} - x \rvert}{\lvert \overline{x} \rvert}, \overline{x} \neq 0 \),
+         o {\color{Mahogany} erro relativo} (desconhecido).
+        \end{paragraph}
+        \begin{paragraph}\\
+        \(\color{RoyalPurple} r_x \approx \frac{\lvert \overline{x} - x \rvert}{\lvert \overline{x} \rvert} \leq \frac{\delta_x}{\lvert x \rvert}\) 
+        - {\color{RoyalPurple} 100\% $r_x$} - percentagem do erro.
+        \end{paragraph}
+        \begin{paragraph}\\
+        {\color{Mahogany} Nota:} o erro absoluto não permite avaliar a importância do erro cometido.
+        \end{paragraph}
+    
+    \subsection{\color{RoyalPurple} Majorante do erro}
+        Associado a um número $\color{RoyalPurple} x$ está o limite superior do erro absoluto $\color{RoyalPurple} \delta_x$:\\
+        - $\color{RoyalPurple} \delta_x$ é metade da última casa decimal de $\color{RoyalPurple} x$.\\
+        Por exemplo, se $\color{RoyalPurple} \delta_x$ for $\color{RoyalPurple} 15.23$ (a última casa decimal é a das centésimas), logo:
+        \[\color{RoyalPurple}
+        \delta_x = 0.5 \times 0.01 = 0.005, \overline{x} \in [ \, 15.23 - 0.005, 15.23 + 0.005 ] \,
+        \]
+
+    \subsection{\color{RoyalPurple} Fórmula Fundamental do Erro}
+    {\color{RoyalPurple} \underline{Teorema}}
+    \\Seja $\color{RoyalPurple} \overline{x} \in I_x = [ \, x - \delta_x, x + \delta_x ] \,$ e \\
+         $\color{RoyalPurple} \overline{y} \in I_y = [ \, y - \delta_y, y + \delta_y ] \,$\\
+    ($\color{RoyalPurple} x$ e $\color{RoyalPurple} y$ representam valores aproximados dos valores exatos $\color{RoyalPurple} x$ e $\color{RoyalPurple} y$)
+
+
+
+ 
+
+
+
+
+\end{document}

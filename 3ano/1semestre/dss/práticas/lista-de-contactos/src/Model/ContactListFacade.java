@@ -6,9 +6,14 @@ public interface ContactListFacade {
 
     /**
      * Method to add a new contact to the contact list.
-     * @param newContact
+     * @param info information about the contact
+     *                    0 - name
+     *                    1 - cellphone number
+     *                    2 - telephone number
+     *                    3 - address
+     *                    4 - skype number
      */
-    void addContact(Contact newContact);
+    void addContact(List<String> info);
 
     /**
      * Method to get a contact by giving a person's name.
@@ -45,16 +50,32 @@ public interface ContactListFacade {
     /**
      * Method to get the information (contacts) of a person.
      * @param name name of the person.
-     * @return the contact of the person.
+     * @return the information (name and contacts) of the person.
      * @throws NullPointerException if there's no entry associated with the name.
      */
-    Contact getInfo(String name) throws NullPointerException;
+    List<String> getInfo(String name) throws NullPointerException;
+
+
+    /**
+     * Method to change the information (name included) of a person.
+     * @param originName name of the person before any possible change.
+     * @param info information about the person.
+     * @throws NullPointerException if there's no entry associated with the name.
+     */
+    void setInfo(String originName, List<String> info) throws NullPointerException;
 
     /**
      * Method to get the size of the contact list.
      * @return the size to contact list (0..).
      */
     int size();
+
+    /**
+     * Method to remove a contact.
+     * @param name name of the person.
+     * @throws NullPointerException if there's no entry associated with the name.
+     */
+    void removeContact(String name) throws NullPointerException;
 
 
 
