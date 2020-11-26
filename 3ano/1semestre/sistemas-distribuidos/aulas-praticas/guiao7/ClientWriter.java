@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Client {
+public class ClientWriter {
 
     public static Contact parseLine (String userInput) {
         String[] tokens = userInput.split(" ");
@@ -41,3 +41,4 @@ public class Client {
 
         socket.close();
     }
+}
