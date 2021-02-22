@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2021.2.20)  21 FEB 2021 23:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2021.2.20)  22 FEB 2021 12:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -157,7 +157,7 @@ LaTeX Font Info:    ... okay on input line 6.
 \makeMPintoPDFobject=\count302
 \everyMPtoPDFconversion=\toks16
 )
-Overfull \hbox (97.73651pt too wide) in paragraph at lines 25--51
+Overfull \hbox (97.73651pt too wide) in paragraph at lines 25--48
 | [] 
  []
 
@@ -168,16 +168,16 @@ Overfull \hbox (97.73651pt too wide) in paragraph at lines 25--51
 Here is how much of TeX's memory you used:
  2053 strings out of 479383
  28615 string characters out of 5875830
- 337086 words of memory out of 5000000
+ 336086 words of memory out of 5000000
  19217 multiletter control sequences out of 15000+600000
  404633 words of font info for 31 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 43i,7n,49p,187b,330s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 43i,7n,49p,187b,314s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf-dist/fonts/type1/public/amsfont
 s/cm/cmbx9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/tex
 mf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb>
-Output written on horario3ano2semestre.pdf (1 page, 44700 bytes).
+Output written on horario3ano2semestre.pdf (1 page, 44690 bytes).
 PDF statistics:
  24 PDF objects out of 1000 (max. 8388607)
  16 compressed objects within 1 object stream
