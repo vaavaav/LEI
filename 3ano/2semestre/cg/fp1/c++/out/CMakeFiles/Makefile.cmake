@@ -10,7 +10,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.19.4/CMakeCCompiler.cmake"
   "CMakeFiles/3.19.4/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.19.4/CMakeSystem.cmake"
-  "/home/vaavaav/MIEI/3ano/2semestre/cg/fp1/src/CMakeLists.txt"
+  "/home/vaavaav/MIEI/3ano/2semestre/cg/fp1/c++/src/CMakeLists.txt"
   "/usr/share/cmake-3.19/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.19/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake-3.19/Modules/CMakeCommonLanguageInclude.cmake"

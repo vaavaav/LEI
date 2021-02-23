@@ -8,10 +8,8 @@
 #include <math.h>
 #include <stdio.h>
 
-float size = 1;
-float inc  = -0.001; 
-float r = 0.0f, g = 0.0f, b =0.0f;
-float incC = 0.001f;
+float size = 0;
+float time = 0;
 
 void changeSize(int w, int h)
 {
@@ -46,8 +44,14 @@ void renderScene(void)
 		0.0f, 1.0f, 0.0f);
 		
 	// put drawing instructions here
-	glutWireTeapot(size);
-	glColor3f(r, g, b);
+	///glutWireTeapot(abs(sin(size)));
+	//size += 0.001;
+	// Frame rate independent
+	float ntime = glutGet(GLUT_ELAPSED_TIME);
+	size+=(ntime-time)/500;
+	time = ntime;
+	glutWireTeapot(abs(sin(size)));
+
 	
 	// End of frame
 	glutSwapBuffers();
@@ -61,51 +65,18 @@ void printInfo() {
 	printf("Version: %s\n", glGetString(GL_VERSION));
 }
 
-void resize(){
-
-	if(size <= -1 || size > 1)
-		inc *= -1;
-
-	if(r < 0.0f ){
-		incC *= -1;
-		r += incC;
-	}
-	else 
-		if(r < 1.0f)
-			r += incC;
-		else 
-			if(g < 1.0f)
-				g += incC;
-			else
-				if(b < 1.0f)
-					b += incC;
-				else if(b == 0){
-					g += incC;
-				}else
-				{
-					incC *= -1;
-					b += incC;
-				}
-
-	
-	size += inc;
-	
-	renderScene();
-}
-
-
 int main(int argc, char** argv)
 {
 	// put GLUT init here
 	glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA);
+    glutInitDisplayMode(GLUT_DEPTH);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("CG@DI");
 
 	// put callback registry here
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
-	glutIdleFunc(resize);
+	glutIdleFunc(renderScene);
 	
 	// some OpenGL settings
 	glEnable(GL_DEPTH_TEST);

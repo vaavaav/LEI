@@ -10,12 +10,13 @@ main = do
   _window <- createWindow "CG@DI"
 
   -- value by ref
-  size <- newIORef 1.0  
+  x <- newIORef 0.0
+  time <- newIORef 0.0
 
   -- put callback registry here         
-  displayCallback $= renderScene size
+  displayCallback $= renderScene x
   reshapeCallback $= Just resize
-  idleCallback $= Just (idle size)
+  idleCallback $= Just (idle x time)
 
   -- some OpenGL settings
   depthFunc $= Nothing
@@ -24,9 +25,12 @@ main = do
   mainLoop
 
 
-idle :: IORef Double -> IdleCallback
-idle size = do
-  size `modifyIORef` (+ 0.02)
+idle :: IORef Double -> IORef Double -> IdleCallback
+idle x time = do
+  timeV <- readIORef time
+  ntimeV <- fromIntegral <$> elapsedTime
+  x `modifyIORef` (+ (ntimeV - timeV)/500)
+  time `modifyIORef` (const ntimeV)
   postRedisplay Nothing
 
 
@@ -45,7 +49,9 @@ renderScene size = do
         (Vector3 (0::GLdouble) (1::GLdouble) (0::GLdouble))
 
   -- put drawing instructions here
-  renderObject Wireframe $ Teapot (sin size') -- render objec
+  renderObject Wireframe $ Teapot ((sin size')) -- render objec
+
+
   
   --  End of frame
   swapBuffers         

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/vaavaav/MIEI/3ano/2semestre/cg/fp1/src/main.cpp
+/home/vaavaav/MIEI/3ano/2semestre/cg/fp1/c++/src/main.cpp
 GLUT/glut.h
 -
 GL/glut.h
