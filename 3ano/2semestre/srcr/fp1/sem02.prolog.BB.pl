@@ -40,19 +40,15 @@ bisavo(BA, BN) :- filho(BA, A), avo(A, BN).
 %--------------------------------- - - - - - - - - - -  -  -  -  -   -
 % Extensao do predicado descendente: Descendente,Ascendente -> {V,F}
 
-desc(D,A) :- pai(A,D).
-desc(D,A) :- avo(D,A).
-desc(D,A) :- bisavo(D,A).
-desc(D,A) :- pai(P,D), desc(P,A).
+desc(D,A) :- filho(D,A).
+desc(D,A) :- filho(D,P), desc(P,A).
 
 
 %--------------------------------- - - - - - - - - - -  -  -  -  -   -
 % Extensao do predicado descendente: Descendente,Ascendente,Grau -> {V,F}
 
-desc(D,A,0) :- pai(A,D).
-desc(D,A,1) :- avo(D,A).
-desc(D,A,2) :- bisavo(D,A).
-desc(D,A,N) :- pai(P,D), desc(P,A,N-1).
+desc(D,A,1) :- pai(A,D).
+desc(D,A,G) :- pai(P,D), desc(P,A,G1), G is G1+1.
 
 
 

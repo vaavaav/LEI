@@ -1,0 +1,3 @@
+/home/vaavaav/MIEI/3ano/2semestre/cg/fp2/out/CMakeFiles/rebuild_cache.dir
+/home/vaavaav/MIEI/3ano/2semestre/cg/fp2/out/CMakeFiles/edit_cache.dir
+/home/vaavaav/MIEI/3ano/2semestre/cg/fp2/out/CMakeFiles/class2.dir
