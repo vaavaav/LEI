@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/vaavaav/MIEI/3ano/2semestre/cg/fp3/main.cpp
+GL/freeglut_std.h
+-
+GL/gl.h
+-
+cmath
+-
+GLUT/glut.h
+-
+GL/glut.h
+-
+math.h
+-
+

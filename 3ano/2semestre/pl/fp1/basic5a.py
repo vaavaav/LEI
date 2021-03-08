@@ -11,7 +11,7 @@ while opc:
   else:
     inputFromUser = input("Frase-fonte >> ")
     if opc == 1:
-       lista = re.split(r'[-/.:]', inputFromUser, maxsplit=0, flags=0)
+       lista = re.split(r'[\-/.:]', inputFromUser, maxsplit=0, flags=0)
        if len(lista) == 3:
           print("Dia: ", lista[2]) 
     elif opc == 2:
