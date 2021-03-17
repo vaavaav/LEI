@@ -41,14 +41,26 @@ rf'''<!DOCTYPE html>
         docHTML
     )
 
+    while re.search(r'<autor>((.|\n)*?)<\/autor>', docHTML):
+        docHTML = re.sub(
+        r'<autor>( |\n)*<nome>([a-zA-Z ]+)<\/nome>( |\n)*<numero>([A-Z0-9]+)<\/numero>( |\n)*<email>([^<]+)<\/email>( |\n)*<\/autor>',
+        rf'<li>\2(\4): \6</li>',
+        docHTML
+        )
+
+        docHTML = re.sub(
+        r'<autor>( |\n)*<nome>([a-zA-Z ]+)<\/nome>( |\n)*<email>([^<]+)<\/email>( |\n)*<\/autor>',
+        rf'<li>\2: \4</li>',
+        docHTML
+        )
+
     docHTML = re.sub(
-        r'<autores>((.|\n)*)<\/autores>',
-        r'<h3>Autores</h3>\n<ul>\1</ul>',
+        r'<descricao>((.|\n)*)<\/descricao>',   
+        r'<h3>Resumo</h3>\n<p>\1</p>',
         docHTML
     )
 
     print(docHTML)
-
 
 with open("relatorio.xml") as f:
     conteudo = f.read()
