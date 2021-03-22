@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/class5.dir/main.cpp.o -o class5  /usr/lib/libGL.so /usr/lib/libGLU.so /usr/lib/libglut.so /usr/lib/libXmu.so /usr/lib/libXi.so /usr/lib/libGLEW.so /usr/lib/libGL.so /usr/lib/libGLU.so /usr/lib/libglut.so /usr/lib/libXmu.so /usr/lib/libXi.so /usr/lib/libGLEW.so 
