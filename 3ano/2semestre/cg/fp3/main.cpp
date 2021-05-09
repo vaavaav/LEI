@@ -141,7 +141,9 @@ void renderScene(void) {
 
 // put drawing instructions here
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	drawCylinder(1.0f,1.0f,8);
+	//drawCylinder(1.0f,1.0f,8);
+	glColor3f(0.0f,0.0f,0.0f);
+	glutWireTeapot(0.5f);
 
 	// End of frame
 	glutSwapBuffers();

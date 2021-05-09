@@ -156,7 +156,8 @@ void renderScene(void) {
 		0.0f, 1.0f, 0.0f);
 
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glDrawArrays(GL_TRIANGLES, 0, vertexB.size());
+	//glDrawArrays(GL_TRIANGLES, 0, vertexB.size());
+	glutWireTeapot(0.5);
 
 	// FPS
 
@@ -260,7 +261,7 @@ int main(int argc, char **argv) {
 	
 //  OpenGL settings
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE) ;
 	glPolygonMode(GL_FRONT, GL_LINE);
 	
 	glEnableClientState(GL_VERTEX_ARRAY);

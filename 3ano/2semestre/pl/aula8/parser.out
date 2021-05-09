@@ -1,0 +1,136 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> lisp
+Rule 1     lisp -> sexp
+Rule 2     sexp -> PAL
+Rule 3     sexp -> NUM
+Rule 4     sexp -> LPAREN sexplist RPAREN
+Rule 5     sexplist -> sexp sexplist
+Rule 6     sexplist -> <empty>
+
+Terminals, with rules where they appear
+
+LPAREN               : 4
+NUM                  : 3
+PAL                  : 2
+RPAREN               : 4
+error                : 
+
+Nonterminals, with rules where they appear
+
+lisp                 : 0
+sexp                 : 1 5
+sexplist             : 4 5
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . lisp
+    (1) lisp -> . sexp
+    (2) sexp -> . PAL
+    (3) sexp -> . NUM
+    (4) sexp -> . LPAREN sexplist RPAREN
+
+    PAL             shift and go to state 3
+    NUM             shift and go to state 4
+    LPAREN          shift and go to state 5
+
+    lisp                           shift and go to state 1
+    sexp                           shift and go to state 2
+
+state 1
+
+    (0) S' -> lisp .
+
+
+
+state 2
+
+    (1) lisp -> sexp .
+
+    $end            reduce using rule 1 (lisp -> sexp .)
+
+
+state 3
+
+    (2) sexp -> PAL .
+
+    $end            reduce using rule 2 (sexp -> PAL .)
+    PAL             reduce using rule 2 (sexp -> PAL .)
+    NUM             reduce using rule 2 (sexp -> PAL .)
+    LPAREN          reduce using rule 2 (sexp -> PAL .)
+    RPAREN          reduce using rule 2 (sexp -> PAL .)
+
+
+state 4
+
+    (3) sexp -> NUM .
+
+    $end            reduce using rule 3 (sexp -> NUM .)
+    PAL             reduce using rule 3 (sexp -> NUM .)
+    NUM             reduce using rule 3 (sexp -> NUM .)
+    LPAREN          reduce using rule 3 (sexp -> NUM .)
+    RPAREN          reduce using rule 3 (sexp -> NUM .)
+
+
+state 5
+
+    (4) sexp -> LPAREN . sexplist RPAREN
+    (5) sexplist -> . sexp sexplist
+    (6) sexplist -> .
+    (2) sexp -> . PAL
+    (3) sexp -> . NUM
+    (4) sexp -> . LPAREN sexplist RPAREN
+
+    RPAREN          reduce using rule 6 (sexplist -> .)
+    PAL             shift and go to state 3
+    NUM             shift and go to state 4
+    LPAREN          shift and go to state 5
+
+    sexplist                       shift and go to state 6
+    sexp                           shift and go to state 7
+
+state 6
+
+    (4) sexp -> LPAREN sexplist . RPAREN
+
+    RPAREN          shift and go to state 8
+
+
+state 7
+
+    (5) sexplist -> sexp . sexplist
+    (5) sexplist -> . sexp sexplist
+    (6) sexplist -> .
+    (2) sexp -> . PAL
+    (3) sexp -> . NUM
+    (4) sexp -> . LPAREN sexplist RPAREN
+
+    RPAREN          reduce using rule 6 (sexplist -> .)
+    PAL             shift and go to state 3
+    NUM             shift and go to state 4
+    LPAREN          shift and go to state 5
+
+    sexp                           shift and go to state 7
+    sexplist                       shift and go to state 9
+
+state 8
+
+    (4) sexp -> LPAREN sexplist RPAREN .
+
+    $end            reduce using rule 4 (sexp -> LPAREN sexplist RPAREN .)
+    PAL             reduce using rule 4 (sexp -> LPAREN sexplist RPAREN .)
+    NUM             reduce using rule 4 (sexp -> LPAREN sexplist RPAREN .)
+    LPAREN          reduce using rule 4 (sexp -> LPAREN sexplist RPAREN .)
+    RPAREN          reduce using rule 4 (sexp -> LPAREN sexplist RPAREN .)
+
+
+state 9
+
+    (5) sexplist -> sexp sexplist .
+
+    RPAREN          reduce using rule 5 (sexplist -> sexp sexplist .)
+

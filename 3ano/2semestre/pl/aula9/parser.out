@@ -1,0 +1,48 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    NL
+    ONE
+    ZERO
+
+Grammar
+
+Rule 0     S' -> Comando
+Rule 1     Comando -> ? ID
+Rule 2     Comando -> ! Exp
+Rule 3     Comando -> ID = Exp
+Rule 4     Comando -> ! !
+Rule 5     Exp -> Exp + Termo
+Rule 6     Exp -> Exp - Termo
+Rule 7     Exp -> Termo
+Rule 8     Exp -> Termo * Termo
+Rule 9     Exp -> Termo / Termo
+Rule 10    Factor -> ( Exp )
+Rule 11    Factor -> num
+
+Terminals, with rules where they appear
+
+!                    : 2 4 4
+(                    : 10
+)                    : 10
+*                    : 8
++                    : 5
+-                    : 6
+/                    : 9
+=                    : 3
+?                    : 1
+NL                   : 
+ONE                  : 
+ZERO                 : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+Comando              : 0
+Exp                  : 2 3 5 6 10
+Factor               : 
+ID                   : 1 3
+Termo                : 5 6 7 8 8 9 9
+num                  : 11
+

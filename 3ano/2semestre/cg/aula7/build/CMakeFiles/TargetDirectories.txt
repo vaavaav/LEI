@@ -1,0 +1,3 @@
+/home/vaavaav/MIEI/3ano/2semestre/cg/aula7/build/CMakeFiles/rebuild_cache.dir
+/home/vaavaav/MIEI/3ano/2semestre/cg/aula7/build/CMakeFiles/edit_cache.dir
+/home/vaavaav/MIEI/3ano/2semestre/cg/aula7/build/CMakeFiles/class7.dir
